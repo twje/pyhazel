@@ -13,9 +13,9 @@ class OpenGLContent(GraphicsContent):
     def init(self):
         glfw.make_context_current(self.window_handle)
         print("OpenGL Info:")
-        print(f"   Vendor: {glGetString(GL_VENDOR)}")
-        print(f"   Renderer: {glGetString(GL_RENDERER)}")
-        print(f"   Version: {glGetString(GL_VERSION)}")
+        print(f"   Vendor: {glGetString(GL_VENDOR).decode('ascii')}")
+        print(f"   Renderer: {glGetString(GL_RENDERER).decode('ascii')}")
+        print(f"   Version: {glGetString(GL_VERSION).decode('ascii')}")
 
     def swap_buffers(self):
         glfw.swap_buffers(self.window_handle)

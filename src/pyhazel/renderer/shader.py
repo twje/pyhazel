@@ -1,5 +1,6 @@
 from OpenGL.GL.shaders import compileProgram, compileShader
 from OpenGL.GL import *
+import glm
 
 __all__ = ["Shader"]
 
@@ -23,3 +24,7 @@ class Shader:
 
     def unbind(self):
         glUseProgram(0)
+
+    def upload_uniform_mat4(self, name: str, matrix: glm.mat4):
+        location = glGetUniformLocation(self.renderer_id, name)
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm.value_ptr(matrix))

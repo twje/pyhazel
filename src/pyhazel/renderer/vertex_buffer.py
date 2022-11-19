@@ -16,9 +16,6 @@ __all__ = ["VertexBuffer"]
 class VertexBuffer(ABC):
     @staticmethod
     def create(data: ndarray) -> VertexBuffer:
-        print(RendererAPI.API.OpenGL.value)
-        print(RendererAPI.api.value)
-
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
