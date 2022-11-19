@@ -5,18 +5,8 @@ from .window import Window
 from .layer_stack import LayerStack
 from .imgui_layer import ImGuiLayer
 from .layer import Layer
-from OpenGL.GL import *
-from .renderer import VertexArray
-from .renderer import VertexBuffer
-from .renderer import BufferLayout
-from .renderer import BufferElement
-from .renderer import IndexBuffer
-from .renderer import ShaderDataType
-from .renderer import Shader
-from .renderer import Renderer
-from .renderer import RenderCommand
-from .renderer import OrthographicCamera
-import numpy as np
+from .timestep import Timestep
+import glfw
 
 
 class Application:
@@ -31,141 +21,19 @@ class Application:
         self.window.set_event_callback(self.on_event)
         self.layer_stack = LayerStack()
         self.running = True
+        self.last_frame_time = 0
 
         self.imgui_layer = ImGuiLayer()
         self.push_overlay(self.imgui_layer)
 
-        # -------------------------------
-        # Renderer Setup (todo: refactor)
-        # -------------------------------
-        #self.camera = OrthographicCamera(-1.6, 1.6, -0.9, 0.9)
-        self.camera = OrthographicCamera(-1.6, 1.6, -0.9, 0.9)
-
-        # VAO 1
-        self.vertex_array = VertexArray.create()
-
-        vertices = np.array([
-            -0.5, -0.5, 0.0, 0.8, 0.2, 0.8, 1.0,
-            0.5, -0.5, 0.0, 0.2, 0.3, 0.8, 1.0,
-            0.0,  0.5, 0.0, 0.8, 0.8, 0.2, 1.0
-        ], dtype=np.float32)
-
-        vertex_buffer = VertexBuffer.create(vertices)
-        vertex_buffer.buffer_layout = BufferLayout(
-            BufferElement(ShaderDataType.FLOAT3, "a_Position"),
-            BufferElement(ShaderDataType.FLOAT4, "a_Color"),
-        )
-        self.vertex_array.add_vertex_buffer(vertex_buffer)
-
-        indices = np.array([0, 1, 2], dtype=np.uint32)
-        index_buffer = IndexBuffer.create(indices)
-        self.vertex_array.index_buffer = index_buffer
-
-        # VAO 2
-        self.square_vertex_array = VertexArray.create()
-
-        self.square_vertices = np.array([
-            -0.75, -0.75, 0.0,
-            0.75, -0.75, 0.0,
-            0.75,  0.75, 0.0,
-            -0.75,  0.75, 0.0
-        ], dtype=np.float32)
-
-        self.square_vertex_buffer = VertexBuffer.create(self.square_vertices)
-        self.square_vertex_buffer.buffer_layout = BufferLayout(
-            BufferElement(ShaderDataType.FLOAT3, "a_Position")
-        )
-        self.square_vertex_array.add_vertex_buffer(self.square_vertex_buffer)
-
-        square_indices = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
-        square_index_buffer = IndexBuffer.create(square_indices)
-        self.square_vertex_array.index_buffer = square_index_buffer
-
-        # shaders
-        vertex_src = """
-            #version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-            uniform mat4 u_ViewProjection;
-
-			out vec3 v_Position;
-			out vec4 v_Color;
-
-			void main()
-			{
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
-			}
-        """
-
-        fragment_src = """
-            #version 330 core
-			
-			layout(location = 0) out vec4 color;
-			
-			in vec3 v_Position;
-			in vec4 v_Color;
-
-			void main()
-			{
-                //color = vec4(1, 1, 1, 1);
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-        """
-
-        self.shader = Shader(vertex_src, fragment_src)
-
-        square_vertex_src = """
-            #version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-
-            uniform mat4 u_ViewProjection;
-
-			out vec3 v_Position;
-
-			void main()
-			{
-				v_Position = a_Position;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
-			}
-        """
-
-        square_fragment_src = """
-            #version 330 core
-			
-			layout(location = 0) out vec4 color;
-
-			in vec3 v_Position;
-
-			void main()
-			{
-				color = vec4(0.2, 0.3, 0.8, 1.0);
-			}
-        """
-
-        self.blue_shader = Shader(square_vertex_src, square_fragment_src)
-
     def run(self):
         while self.running:
-            import glm
-            RenderCommand.set_clear_color(glm.vec4(0.1, 0.1, 0.1, 1))
-            RenderCommand.clear()
-
-            self.camera.position = glm.vec3(0.5, 0.5, 0)
-            self.camera.rotation = 45
-
-            Renderer.begin_scene(self.camera)
-            Renderer.submit(self.blue_shader, self.square_vertex_array)
-            Renderer.submit(self.shader, self.vertex_array)
-            Renderer.end_scene()
+            time = glfw.get_time()
+            timestamp = Timestep(time - self.last_frame_time)
+            self.last_frame_time = time
 
             for layer in self.layer_stack:
-                layer.on_update()
+                layer.on_update(timestamp)
 
             self.imgui_layer.begin()
             for layer in self.layer_stack:

@@ -1,4 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from .events import Event
+
+if TYPE_CHECKING:
+    from .timestep import Timestep
 
 
 class Layer:
@@ -14,7 +20,7 @@ class Layer:
     def on_detach(self):
         pass
 
-    def on_update(self):
+    def on_update(self, time_stamp: Timestep):
         pass
 
     def on_event(self, event: Event):

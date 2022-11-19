@@ -1,3 +1,4 @@
+from copy import copy
 import glm
 
 
@@ -19,7 +20,7 @@ class OrthographicCamera:
 
     @position.setter
     def position(self, value: glm.vec3):
-        self._position = value
+        self._position = copy(value)
         self._recalculate_view_matric()
 
     @property
