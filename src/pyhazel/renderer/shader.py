@@ -1,37 +1,29 @@
-from OpenGL.GL.shaders import compileProgram, compileShader
-from OpenGL.GL import *
-import glm
+
+from __future__ import annotations
+
+from abc import ABC
+from abc import abstractmethod
+from .renderer_api import RendererAPI
 
 __all__ = ["Shader"]
 
 
-class Shader:
-    def __init__(self, vertex_src: str, fragment_src: str) -> None:
-        self.renderer_id = compileProgram(
-            compileShader(
-                vertex_src,
-                GL_VERTEX_SHADER
-            ),
-            compileShader(
-                fragment_src,
-                GL_FRAGMENT_SHADER
-            ),
-        )
-        glUseProgram(self.renderer_id)
-        print(self.renderer_id)
+class Shader(ABC):
+    @staticmethod
+    def create(vertex_src: str, fragment_src: str) -> Shader:
+        if RendererAPI.api == RendererAPI.API.NONE:
+            print("RendererAPI.API.NONE is not supported")
+            return
+        elif RendererAPI.api == RendererAPI.API.OpenGL:
+            from pyhazel.platform.opengl import OpenGLShader
+            return OpenGLShader(vertex_src, fragment_src)
 
+        assert False, "Renderer type is undefined"
+
+    @abstractmethod
     def bind(self):
-        glUseProgram(self.renderer_id)
+        pass
 
+    @abstractmethod
     def unbind(self):
-        glUseProgram(0)
-
-    def upload_uniform_float4(self, name: str, value: glm.mat4):
-        self.bind()
-        location = glGetUniformLocation(self.renderer_id, name)
-        glUniform4f(location, value.x, value.y, value.z, value.w)
-
-    def upload_uniform_mat4(self, name: str, matrix: glm.mat4):
-        self.bind()
-        location = glGetUniformLocation(self.renderer_id, name)
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm.value_ptr(matrix))
+        pass

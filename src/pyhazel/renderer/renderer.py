@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from . import Shader
     from . import OrthographicCamera
     from . import VertexArray
+    from pyhazel.platform.opengl import OpenGLShader
 
 __all__ = ["Renderer"]
 
@@ -33,12 +34,15 @@ class Renderer:
 
     @classmethod
     def submit(cls, shader: Shader, vertex_array: VertexArray, transform=glm.mat4(1)):
-        shader.bind()
-        shader.upload_uniform_mat4(
+        # todo: eventually move into material and won't need to downcast
+        opengl_shader: OpenGLShader = shader
+
+        opengl_shader.bind()
+        opengl_shader.upload_uniform_mat4(
             "u_ViewProjection",
             cls.scene_data.view_projection_matrix
         )
-        shader.upload_uniform_mat4(
+        opengl_shader.upload_uniform_mat4(
             "u_Transform",
             transform
         )
