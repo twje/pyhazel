@@ -18,6 +18,7 @@ class Shader:
             ),
         )
         glUseProgram(self.renderer_id)
+        print(self.renderer_id)
 
     def bind(self):
         glUseProgram(self.renderer_id)
@@ -25,6 +26,12 @@ class Shader:
     def unbind(self):
         glUseProgram(0)
 
+    def upload_uniform_float4(self, name: str, value: glm.mat4):
+        self.bind()
+        location = glGetUniformLocation(self.renderer_id, name)
+        glUniform4f(location, value.x, value.y, value.z, value.w)
+
     def upload_uniform_mat4(self, name: str, matrix: glm.mat4):
+        self.bind()
         location = glGetUniformLocation(self.renderer_id, name)
         glUniformMatrix4fv(location, 1, GL_FALSE, glm.value_ptr(matrix))
