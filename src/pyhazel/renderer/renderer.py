@@ -32,11 +32,15 @@ class Renderer:
         pass
 
     @classmethod
-    def submit(cls, shader: Shader, vertex_array: VertexArray):
+    def submit(cls, shader: Shader, vertex_array: VertexArray, transform=glm.mat4(1)):
         shader.bind()
         shader.upload_uniform_mat4(
             "u_ViewProjection",
             cls.scene_data.view_projection_matrix
+        )
+        shader.upload_uniform_mat4(
+            "u_Transform",
+            transform
         )
 
         vertex_array.bind()
