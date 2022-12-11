@@ -25,6 +25,8 @@ class LayerStack:
     def pop_layer(self, layer: Layer):
         try:
             index = self.layers.index(layer)
+            if index > self.layer_index:
+                raise Exception()
         except:
             return
         else:
@@ -35,6 +37,8 @@ class LayerStack:
     def pop_overlay(self, overlay: Layer):
         try:
             index = self.layers.index(overlay)
+            if index < self.layer_index:
+                raise Exception()
         except:
             return
         else:
