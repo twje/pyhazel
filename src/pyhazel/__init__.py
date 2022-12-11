@@ -23,6 +23,7 @@ from .renderer import BufferLayout
 from .renderer import BufferElement
 from .renderer import ShaderDataType
 from .renderer import Shader
+from .renderer import Texture2D
 
 # all events
 from .events import Event
