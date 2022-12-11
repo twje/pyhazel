@@ -13,6 +13,10 @@ __all__ = ["OpenGLRendererAPI"]
 
 
 class OpenGLRendererAPI(RendererAPI):
+    def init(self):
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
     def set_clear_color(self, color: glm.vec4):
         glClearColor(color.r, color.g, color.b, color.a)
 

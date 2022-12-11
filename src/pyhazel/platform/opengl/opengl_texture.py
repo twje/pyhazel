@@ -20,7 +20,18 @@ class OpenGLTexture(Texture2D):
         # load image data
         image = Image.open(path)
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
-        data = image.convert("RGB").tobytes()
+        data = image.tobytes()
+
+        internal_format = 0
+        data_format = 0
+        if image.mode == "RGB":
+            internal_format = GL_RGB
+            data_format = GL_RGB
+        elif image.mode == "RGBA":
+            internal_format = GL_RGBA
+            data_format = GL_RGBA
+        else:
+            assert False, "Format not supported!"
 
         self._width = image.width
         self._height = image.height
@@ -28,11 +39,11 @@ class OpenGLTexture(Texture2D):
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGB,
+            internal_format,  # describes how texture is stored in the GPU
             self._width,
             self._height,
             0,
-            GL_RGB,
+            data_format,  # describes format of pixel data in client memory
             GL_UNSIGNED_BYTE,
             data
         )

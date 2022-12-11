@@ -31,6 +31,10 @@ class RendererAPI(ABC):
         assert False, "Renderer type is undefined"
 
     @abstractmethod
+    def init(self):
+        pass
+
+    @abstractmethod
     def set_clear_color(self, color: glm.vec4):
         pass
 

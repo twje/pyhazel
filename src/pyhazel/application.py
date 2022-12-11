@@ -6,6 +6,7 @@ from .layer_stack import LayerStack
 from .imgui_layer import ImGuiLayer
 from .layer import Layer
 from .timestep import Timestep
+from .renderer import Renderer
 import glfw
 
 
@@ -22,6 +23,8 @@ class Application:
         self.layer_stack = LayerStack()
         self.running = True
         self.last_frame_time = 0
+
+        Renderer.init()
 
         self.imgui_layer = ImGuiLayer()
         self.push_overlay(self.imgui_layer)

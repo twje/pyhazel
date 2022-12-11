@@ -35,6 +35,10 @@ class RenderCommand:
         return cls._renderer_api
 
     @classmethod
+    def init(cls):
+        cls.renderer_api.init()
+
+    @classmethod
     def set_clear_color(cls, color: glm.vec4):
         cls.renderer_api.set_clear_color(color)
 

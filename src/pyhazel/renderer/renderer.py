@@ -23,6 +23,10 @@ class SceneData:
 class Renderer:
     scene_data = SceneData()
 
+    @staticmethod
+    def init():
+        RenderCommand.init()
+
     @classmethod
     def begin_scene(cls, camera: OrthographicCamera):
         matrix = copy(camera.view_projection_matrix)
