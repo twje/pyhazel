@@ -46,7 +46,7 @@ class OpenGLVertexArray(VertexArray):
         self._index_buffer: IndexBuffer = None
         self._vertex_buffers: list[VertexBuffer] = []
         self._renderer_id = glGenVertexArrays(1)
-        self._vertex_buffer_index_offset = 0
+        self._vertex_buffer_offset = 0
         glBindVertexArray(self._renderer_id)
 
     def bind(self):
@@ -62,19 +62,19 @@ class OpenGLVertexArray(VertexArray):
         vertex_buffer.bind()
 
         layout = vertex_buffer.buffer_layout
-        for index, element in enumerate(layout, start=0):
-            glEnableVertexAttribArray(index + self._vertex_buffer_index_offset)
+        for element in layout:
+            glEnableVertexAttribArray(self._vertex_buffer_offset)
             glVertexAttribPointer(
-                index + self._vertex_buffer_index_offset,
+                self._vertex_buffer_offset,
                 element.s_type.count,
                 shader_data_type_to_opengl_base_type(element.s_type),
                 GL_TRUE if element.normalized else GL_FALSE,
                 layout.stride,
                 ctypes.c_void_p(element.offset)
             )
+            self._vertex_buffer_offset += 1
 
         self.vertex_buffers.append(vertex_buffer)
-        self._vertex_buffer_index_offset += len(layout.elements)
 
     @property
     def vertex_buffers(self) -> list[VertexBuffer]:
