@@ -18,9 +18,9 @@ class OpenGLIndexBuffer(IndexBuffer):
         self._renderer_id = glGenBuffers(1)
         self._count = len(data)
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self._renderer_id)
+        glBindBuffer(GL_ARRAY_BUFFER, self._renderer_id)
         glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
+            GL_ARRAY_BUFFER,
             data.nbytes,
             data,
             GL_STATIC_DRAW
