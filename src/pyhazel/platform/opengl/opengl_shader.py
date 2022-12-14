@@ -28,7 +28,7 @@ class OpenGLShader(Shader):
         return self._name
 
     @classmethod
-    def create_from_file(cls, filepath: str):
+    def create_from_filepath(cls, filepath: str):
         shader = cls()
         source = shader.read_file(filepath)
         shader_sources = shader.pre_process(source)
@@ -37,7 +37,7 @@ class OpenGLShader(Shader):
         return shader
 
     @classmethod
-    def create_from_string(cls, name: str, vertex_src: str, fragment_src: str):
+    def create_from_source(cls, name: str, vertex_src: str, fragment_src: str):
         shader_sources: dict[GLenum, str] = {
             GL_VERTEX_SHADER: vertex_src,
             GL_FRAGMENT_SHADER: fragment_src

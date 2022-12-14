@@ -10,24 +10,24 @@ __all__ = ["Shader"]
 
 class Shader(ABC):
     @staticmethod
-    def create_from_file(filepath: str):
+    def create_from_filepath(filepath: str):
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
         elif RendererAPI.api == RendererAPI.API.OpenGL:
             from pyhazel.platform.opengl import OpenGLShader
-            return OpenGLShader.create_from_file(filepath)
+            return OpenGLShader.create_from_filepath(filepath)
 
         assert False, "Renderer type is undefined"
 
     @staticmethod
-    def create_from_string(name: str, vertex_src: str, fragment_src: str) -> Shader:
+    def create_from_source(name: str, vertex_src: str, fragment_src: str) -> Shader:
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
         elif RendererAPI.api == RendererAPI.API.OpenGL:
             from pyhazel.platform.opengl import OpenGLShader
-            return OpenGLShader.create_from_string(name, vertex_src, fragment_src)
+            return OpenGLShader.create_from_source(name, vertex_src, fragment_src)
 
         assert False, "Renderer type is undefined"
 

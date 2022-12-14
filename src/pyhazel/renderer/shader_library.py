@@ -16,7 +16,7 @@ class ShaderLibrary:
         self.shaders[name] = shader
 
     def load(self, name: str | None, filepath: str) -> Shader:
-        shader = Shader.create_from_file(filepath)
+        shader = Shader.create_from_filepath(filepath)
         self.add(name, shader)
         return shader
 
