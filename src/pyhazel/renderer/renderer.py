@@ -27,6 +27,10 @@ class Renderer:
     def init():
         RenderCommand.init()
 
+    @staticmethod
+    def on_window_resize(width: float, height: float):
+        RenderCommand.on_window_resize(0, 0, width, height)
+
     @classmethod
     def begin_scene(cls, camera: OrthographicCamera):
         matrix = copy(camera.view_projection_matrix)

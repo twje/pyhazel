@@ -39,6 +39,10 @@ class RenderCommand:
         cls.renderer_api.init()
 
     @classmethod
+    def on_window_resize(cls, x: float, y: float, width: float, height: float):
+        cls.renderer_api.set_viewport(x, y, width, height)
+
+    @classmethod
     def set_clear_color(cls, color: glm.vec4):
         cls.renderer_api.set_clear_color(color)
 

@@ -35,6 +35,10 @@ class RendererAPI(ABC):
         pass
 
     @abstractmethod
+    def set_viewport(self, x: float, y: float, width: float, height: float):
+        pass
+
+    @abstractmethod
     def set_clear_color(self, color: glm.vec4):
         pass
 

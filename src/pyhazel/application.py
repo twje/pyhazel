@@ -1,6 +1,7 @@
 from .events import Event
 from .events import EventDispatcher
 from .events import WindowCloseEvent
+from .events import WindowResizeEvent
 from .window import Window
 from .layer_stack import LayerStack
 from .imgui_layer import ImGuiLayer
@@ -22,6 +23,7 @@ class Application:
         self.window.set_event_callback(self.on_event)
         self.layer_stack = LayerStack()
         self.running = True
+        self.minimized = False
         self.last_frame_time = 0
 
         Renderer.init()
@@ -35,8 +37,9 @@ class Application:
             timestamp = Timestep(time - self.last_frame_time)
             self.last_frame_time = time
 
-            for layer in self.layer_stack:
-                layer.on_update(timestamp)
+            if not self.minimized:
+                for layer in self.layer_stack:
+                    layer.on_update(timestamp)
 
             self.imgui_layer.begin()
             for layer in self.layer_stack:
@@ -48,6 +51,7 @@ class Application:
     def on_event(self, event: Event) -> None:
         dispatcher = EventDispatcher(event)
         dispatcher.dispatch(WindowCloseEvent, self.on_window_close)
+        dispatcher.dispatch(WindowResizeEvent, self.on_window_resize)
 
         for layer in reversed(self.layer_stack):
             layer.on_event(event)
@@ -63,3 +67,13 @@ class Application:
     def on_window_close(self, event: WindowCloseEvent) -> bool:
         self.running = False
         return True
+
+    def on_window_resize(self, event: WindowResizeEvent) -> bool:
+        if event.width == 0 or event.height == 0:
+            self.minimized = True
+            return False
+
+        self.minimized = False
+        Renderer.on_window_resize(event.width, event.height)
+
+        return False
