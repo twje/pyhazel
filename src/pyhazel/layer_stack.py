@@ -46,4 +46,5 @@ class LayerStack:
 
     def destroy(self):
         for layer in self.layers:
+            layer.on_detach()
             layer.destroy()
