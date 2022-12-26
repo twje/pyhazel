@@ -1,4 +1,3 @@
-from typing import List
 from .layer import Layer
 
 

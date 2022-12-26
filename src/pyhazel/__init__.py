@@ -11,6 +11,7 @@ from .mouse_button_codes import *
 
 from .imgui_layer import ImGuiLayer
 from .timestep import Timestep
+from .orthographic_camera_controller import OrthographicCameraController
 
 # Renderer
 from .renderer import Renderer
