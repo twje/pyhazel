@@ -7,6 +7,7 @@ from .orthographic_camera import *
 from .index_buffer import *
 from .render_command import *
 from .renderer import *
+from .renderer_2d import *
 from .shader_data_type import *
 from .shader import *
 from .vertex_array import *

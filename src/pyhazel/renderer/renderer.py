@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from copy import copy
 from . import RenderCommand
+from .renderer_2d import Renderer2D
 import glm
 
 if TYPE_CHECKING:
@@ -26,6 +27,7 @@ class Renderer:
     @staticmethod
     def init():
         RenderCommand.init()
+        Renderer2D.init()
 
     @staticmethod
     def on_window_resize(width: float, height: float):
