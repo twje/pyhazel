@@ -32,7 +32,7 @@ class OpenGLTexture(Texture2D):
             internal_format = GL_RGB
             data_format = GL_RGB
         elif image.mode == "RGBA":
-            internal_format = GL_RGBA
+            internal_format = GL_RGBA8
             data_format = GL_RGBA
         else:
             assert False, "Format not supported!"
