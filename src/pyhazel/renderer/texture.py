@@ -18,6 +18,10 @@ class Texture(ABC):
         pass
 
     @abstractmethod
+    def set_data(self, data, size: int) -> None:
+        pass
+
+    @abstractmethod
     def bind(self, slot) -> None:
         pass
 
@@ -28,12 +32,23 @@ class Texture(ABC):
 
 class Texture2D(Texture):
     @staticmethod
-    def create(path: str) -> Texture:
+    def create(width: int, height: int) -> Texture:
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
         elif RendererAPI.api == RendererAPI.API.OpenGL:
             from pyhazel.platform.opengl import OpenGLTexture
-            return OpenGLTexture(path)
+            return OpenGLTexture.create(width, height)
+
+        assert False, "Renderer type is undefined"
+
+    @staticmethod
+    def create_from_path(path: str) -> Texture:
+        if RendererAPI.api == RendererAPI.API.NONE:
+            print("RendererAPI.API.NONE is not supported")
+            return
+        elif RendererAPI.api == RendererAPI.API.OpenGL:
+            from pyhazel.platform.opengl import OpenGLTexture
+            return OpenGLTexture.create_from_path(path)
 
         assert False, "Renderer type is undefined"

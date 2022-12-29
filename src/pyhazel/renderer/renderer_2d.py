@@ -26,7 +26,7 @@ __all__ = ["Renderer2D"]
 class Renderer2DStorage:
     quad_vertex_array: VertexArray = None
     flat_color_shader: Shader = None
-    texture_shader: Shader = None
+    white_texture: Texture2D = None
 
 
 class Renderer2D:
@@ -55,8 +55,20 @@ class Renderer2D:
         square_ib = IndexBuffer.create(square_indices)
         cls.data.quad_vertex_array.index_buffer = square_ib
 
-        cls.data.flat_color_shader = Shader.create_from_filepath(
-            "assets/shaders/FlatColor.glsl")
+        cls.data.white_texture = Texture2D.create(1, 1)
+        white_texture_data = np.frombuffer(
+            bytes.fromhex('ffffffff'),
+            dtype=np.uint32
+        )
+
+        indicies = np.array([
+            0, 1, 2,
+            2, 3, 0,
+        ], dtype=np.uint32)
+
+        cls.data.white_texture.set_data(
+            white_texture_data, white_texture_data.nbytes)
+
         cls.data.texture_shader = Shader.create_from_filepath(
             "assets/shaders/Texture.glsl")
         cls.data.texture_shader.bind()
@@ -68,15 +80,6 @@ class Renderer2D:
 
     @classmethod
     def begin_scene(cls, camera: OrthographicCamera):
-        # flat color shader
-        shader = cls.data.flat_color_shader
-        shader.bind()
-        shader.set_mat4(
-            "u_ViewProjection",
-            camera.view_projection_matrix
-        )
-
-        # texture shader
         shader = cls.data.texture_shader
         shader.bind()
         shader.set_mat4(
@@ -90,9 +93,11 @@ class Renderer2D:
 
     @classmethod
     def draw_quad(cls, position: glm.vec3, size: glm.vec2, color: glm.vec4):
-        shader = cls.data.flat_color_shader
-        shader.bind()
+        shader = cls.data.texture_shader
+        texture = cls.data.white_texture
+
         shader.set_float4("u_Color", color)
+        texture.bind()
 
         transform = glm.translate(
             glm.mat4(1), position) * glm.scale(glm.mat4(1), glm.vec3(size.x, size.y, 1))
@@ -104,13 +109,13 @@ class Renderer2D:
     @classmethod
     def draw_texture(cls, position: glm.vec3, size: glm.vec2, texture: Texture2D):
         shader = cls.data.texture_shader
-        shader.bind()
+
+        shader.set_float4("u_Color", glm.vec4(1))
+        texture.bind()
 
         transform = glm.translate(
             glm.mat4(1), position) * glm.scale(glm.mat4(1), glm.vec3(size.x, size.y, 1))
         shader.set_mat4("u_Transform", transform)
-
-        texture.bind()
 
         cls.data.quad_vertex_array.bind()
         RenderCommand.draw_vertex_array(cls.data.quad_vertex_array)

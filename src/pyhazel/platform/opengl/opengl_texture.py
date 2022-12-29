@@ -7,8 +7,53 @@ __all__ = ["OpenGLTexture"]
 
 
 class OpenGLTexture(Texture2D):
-    def __init__(self, path: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
+        self.renderer_id = None
+        self._width = None
+        self._height = None
+        # describes how texture is stored in the GPU
+        self.internal_format = None
+        # describes format of pixel data in client memory
+        self.data_format = None
+
+    @classmethod
+    def create(cls, width: int, height: int) -> Texture2D:
+        self = cls()
+
+        self._width = width
+        self._height = height
+        self.internal_format = GL_RGBA8
+        self.data_format = GL_RGBA
+
+        self.renderer_id = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, self.renderer_id)
+
+        # set texture filtering parameters
+        glTextureParameteri(self.renderer_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTextureParameteri(
+            self.renderer_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            self.internal_format,
+            self._width,
+            self._height,
+            0,
+            self.data_format,
+            GL_UNSIGNED_BYTE,
+            bytes.fromhex('00000000')
+        )
+
+        return self
+
+    @classmethod
+    def create_from_path(cls, path: str) -> Texture2D:
+        self = cls()
 
         self.renderer_id = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, self.renderer_id)
@@ -26,14 +71,12 @@ class OpenGLTexture(Texture2D):
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
         data = image.tobytes()
 
-        internal_format = 0
-        data_format = 0
         if image.mode == "RGB":
-            internal_format = GL_RGB
-            data_format = GL_RGB
+            self.internal_format = GL_RGB
+            self.data_format = GL_RGB
         elif image.mode == "RGBA":
-            internal_format = GL_RGBA8
-            data_format = GL_RGBA
+            self.internal_format = GL_RGBA8
+            self.data_format = GL_RGBA
         else:
             assert False, "Format not supported!"
 
@@ -43,14 +86,16 @@ class OpenGLTexture(Texture2D):
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            internal_format,  # describes how texture is stored in the GPU
+            self.internal_format,
             self._width,
             self._height,
             0,
-            data_format,  # describes format of pixel data in client memory
+            self.data_format,
             GL_UNSIGNED_BYTE,
             data
         )
+
+        return self
 
     @property
     def width(self) -> int:
@@ -59,6 +104,21 @@ class OpenGLTexture(Texture2D):
     @property
     def height(self) -> int:
         return self._height
+
+    def set_data(self, data, size: int):
+        bpp = 4 if self.data_format == GL_RGBA else 3
+        assert size == bpp * self.width * self.height, "Data must be entire texture"
+        glTextureSubImage2D(
+            self.renderer_id,
+            0,
+            0,
+            0,
+            self.width,
+            self.height,
+            self.data_format,
+            GL_UNSIGNED_BYTE,
+            data
+        )
 
     def bind(self, slot: int = 0) -> None:
         glBindTextureUnit(slot, self.renderer_id)
