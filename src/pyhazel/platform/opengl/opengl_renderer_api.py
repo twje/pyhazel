@@ -17,6 +17,8 @@ class OpenGLRendererAPI(RendererAPI):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+        glEnable(GL_DEPTH_TEST)
+
     def set_viewport(self, x: float, y: float, width: float, height: float):
         glViewport(x, y, width, height)
 

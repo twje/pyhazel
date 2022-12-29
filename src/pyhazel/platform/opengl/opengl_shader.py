@@ -97,6 +97,18 @@ class OpenGLShader(Shader):
     def unbind(self):
         glUseProgram(0)
 
+    def set_int(self, name: str, value: int):
+        self.upload_uniform_int(name, value)
+
+    def set_float3(self, name: str, value: glm.vec3):
+        self.upload_uniform_float3(name, value)
+
+    def set_float4(self, name: str, value: glm.vec4):
+        self.upload_uniform_float4(name, value)
+
+    def set_mat4(self, name: str, value: glm.mat4):
+        self.upload_uniform_mat4(name, value)
+
     def upload_uniform_int(self, name: str, value: int):
         self.bind()
         location = glGetUniformLocation(self._renderer_id, name)
