@@ -48,6 +48,10 @@ class Application:
 
             self.window.on_update()
 
+    def destroy(self):
+        """This method replicates the semantics a C/C++ destructor."""
+        pass
+
     def on_event(self, event: Event) -> None:
         dispatcher = EventDispatcher(event)
         dispatcher.dispatch(WindowCloseEvent, self.on_window_close)

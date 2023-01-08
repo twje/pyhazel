@@ -35,3 +35,6 @@ from .events import EventType
 from .events.key_event import *
 from .events.mouse_events import *
 from .events.application_event import *
+
+# debug
+from .debug.instrumentor import *
