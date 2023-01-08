@@ -1,5 +1,6 @@
 from pathlib import Path
 from pyhazel.renderer.shader import Shader
+from pyhazel.debug.instrumentor import *
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import glm
@@ -23,11 +24,17 @@ class OpenGLShader(Shader):
         self._renderer_id: int = -1
         self._name = ""
 
+    @HZ_PROFILE_FUNCTION
+    def destroy(self):
+        pass
+        # todo: wire up to parent class and implement
+
     @property
     def name(self):
         return self._name
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def create_from_filepath(cls, filepath: str):
         shader = cls()
         source = shader.read_file(filepath)
@@ -37,6 +44,7 @@ class OpenGLShader(Shader):
         return shader
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def create_from_source(cls, name: str, vertex_src: str, fragment_src: str):
         shader_sources: dict[GLenum, str] = {
             GL_VERTEX_SHADER: vertex_src,
@@ -48,6 +56,7 @@ class OpenGLShader(Shader):
 
         return shader
 
+    @HZ_PROFILE_FUNCTION
     def read_file(self, filepath) -> str:
         source = ""
         try:
@@ -58,6 +67,7 @@ class OpenGLShader(Shader):
 
         return source
 
+    @HZ_PROFILE_FUNCTION
     def pre_process(self, source) -> dict[GLenum, str]:
         shader_sources: dict[GLenum, str] = {}
         is_parsing = False
@@ -77,6 +87,7 @@ class OpenGLShader(Shader):
 
         return shader_sources
 
+    @HZ_PROFILE_FUNCTION
     def compile(self, shader_sources: dict[GLenum, str]) -> int:
         compiled_shaders = []
         for shader_type, source in shader_sources.items():
@@ -91,21 +102,27 @@ class OpenGLShader(Shader):
 
         return _renderer_id
 
+    @HZ_PROFILE_FUNCTION
     def bind(self):
         glUseProgram(self._renderer_id)
 
+    @HZ_PROFILE_FUNCTION
     def unbind(self):
         glUseProgram(0)
 
+    @HZ_PROFILE_FUNCTION
     def set_int(self, name: str, value: int):
         self.upload_uniform_int(name, value)
 
+    @HZ_PROFILE_FUNCTION
     def set_float3(self, name: str, value: glm.vec3):
         self.upload_uniform_float3(name, value)
 
+    @HZ_PROFILE_FUNCTION
     def set_float4(self, name: str, value: glm.vec4):
         self.upload_uniform_float4(name, value)
 
+    @HZ_PROFILE_FUNCTION
     def set_mat4(self, name: str, value: glm.mat4):
         self.upload_uniform_mat4(name, value)
 

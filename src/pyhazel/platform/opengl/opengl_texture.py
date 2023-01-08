@@ -1,4 +1,5 @@
 from pyhazel.renderer.texture import Texture2D
+from pyhazel.debug.instrumentor import *
 from OpenGL.GL import *
 from PIL import Image
 import numpy as np
@@ -18,6 +19,7 @@ class OpenGLTexture(Texture2D):
         self.data_format = None
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def create(cls, width: int, height: int) -> Texture2D:
         self = cls()
 
@@ -52,6 +54,7 @@ class OpenGLTexture(Texture2D):
         return self
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def create_from_path(cls, path: str) -> Texture2D:
         self = cls()
 
@@ -97,6 +100,11 @@ class OpenGLTexture(Texture2D):
 
         return self
 
+    @HZ_PROFILE_FUNCTION
+    def destroy(self):
+        pass
+        # todo: wire up to parent class and implement
+
     @property
     def width(self) -> int:
         return self._width
@@ -120,8 +128,10 @@ class OpenGLTexture(Texture2D):
             data
         )
 
+    @HZ_PROFILE_FUNCTION
     def bind(self, slot: int = 0) -> None:
         glBindTextureUnit(slot, self.renderer_id)
 
+    @HZ_PROFILE_FUNCTION
     def delete(self) -> None:
         glDeleteTextures(1, self.renderer_id)

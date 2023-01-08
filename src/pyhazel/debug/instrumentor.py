@@ -96,6 +96,17 @@ class InstrumentationTimer:
         return True
 
 
+class NullInstrumentationTimer:
+    def __init__(self) -> None:
+        pass
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type, value, traceback):
+        return True
+
+
 # ==========
 # Client API
 # ==========
@@ -114,19 +125,19 @@ def HZ_PROFILE_END_SESSION():
 
 
 def HZ_PROFILE_SCOPE(name: str):
-    if not INSTRUMENTATION_ENABLED:
-        return
-
-    return InstrumentationTimer(name)
+    if INSTRUMENTATION_ENABLED:
+        return InstrumentationTimer(name)
+    else:
+        return NullInstrumentationTimer()
 
 
 def HZ_PROFILE_FUNCTION(func: Callable):
-    if not INSTRUMENTATION_ENABLED:
-        return
-
     @wraps(func)
     def profiler(*args, **kwargs):
-        with InstrumentationTimer(func.__qualname__):
-            func(*args, **kwargs)
+        if INSTRUMENTATION_ENABLED:
+            with InstrumentationTimer(func.__qualname__):
+                return func(*args, **kwargs)
+        else:
+            return func(*args, **kwargs)
 
     return profiler

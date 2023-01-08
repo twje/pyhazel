@@ -8,6 +8,7 @@ from pyhazel.key_codes import *
 from pyhazel.events import EventDispatcher
 from pyhazel.events.mouse_events import MouseScrolledEvent
 from pyhazel.events.application_event import WindowResizeEvent
+from pyhazel.debug.instrumentor import *
 import glm
 
 if TYPE_CHECKING:
@@ -19,6 +20,7 @@ __all__ = ["OrthographicCameraController"]
 
 
 class OrthographicCameraController:
+    @HZ_PROFILE_FUNCTION
     def __init__(self, aspect_ratio, is_rotation_enabled=False) -> None:
         self.aspect_ratio = aspect_ratio
         self.is_rotation_enabled = is_rotation_enabled
@@ -74,11 +76,13 @@ class OrthographicCameraController:
     def calc_anti_sin_rotate(self, ts: Timestep):
         return math.sin(glm.radians(self.camera_rotation)) * self.camera_translation_speed * ts.seconds
 
+    @HZ_PROFILE_FUNCTION
     def on_event(self, event: Event):
         dispatcher = EventDispatcher(event)
         dispatcher.dispatch(MouseScrolledEvent, self.on_mouse_scrolled)
         dispatcher.dispatch(WindowResizeEvent, self.on_window_resized)
 
+    @HZ_PROFILE_FUNCTION
     def on_mouse_scrolled(self, e: MouseScrolledEvent):
         self.zoom_level -= e.y_offset * 0.25
         self.zoom_level = max(self.zoom_level, 0.25)
@@ -91,6 +95,7 @@ class OrthographicCameraController:
 
         return False
 
+    @HZ_PROFILE_FUNCTION
     def on_window_resized(self, e: WindowResizeEvent):
         self.aspect_ratio = e.width/e.height
         self.camera.set_projection_matrix(

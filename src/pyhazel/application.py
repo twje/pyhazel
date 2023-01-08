@@ -8,12 +8,14 @@ from .imgui_layer import ImGuiLayer
 from .layer import Layer
 from .timestep import Timestep
 from .renderer import Renderer
+from pyhazel.debug.instrumentor import *
 import glfw
 
 
 class Application:
     instance = None
 
+    @HZ_PROFILE_FUNCTION
     def __init__(self) -> None:
         # Singleton (explore more pythonic options)
         assert Application.instance is None
@@ -31,27 +33,34 @@ class Application:
         self.imgui_layer = ImGuiLayer()
         self.push_overlay(self.imgui_layer)
 
-    def run(self):
-        while self.running:
-            time = glfw.get_time()
-            timestamp = Timestep(time - self.last_frame_time)
-            self.last_frame_time = time
-
-            if not self.minimized:
-                for layer in self.layer_stack:
-                    layer.on_update(timestamp)
-
-            self.imgui_layer.begin()
-            for layer in self.layer_stack:
-                layer.on_imgui_render()
-            self.imgui_layer.end()
-
-            self.window.on_update()
-
+    @HZ_PROFILE_FUNCTION
     def destroy(self):
         """This method replicates the semantics a C/C++ destructor."""
+        # Todo: propogate destroy to clean up resources before exiiting application
         pass
 
+    @HZ_PROFILE_FUNCTION
+    def run(self):
+        while self.running:
+            with HZ_PROFILE_SCOPE("RunLoop"):
+                time = glfw.get_time()
+                timestamp = Timestep(time - self.last_frame_time)
+                self.last_frame_time = time
+
+                if not self.minimized:
+                    with HZ_PROFILE_SCOPE("LayerStack OnUpdate"):
+                        for layer in self.layer_stack:
+                            layer.on_update(timestamp)
+
+                self.imgui_layer.begin()
+                with HZ_PROFILE_SCOPE("LayerStack OnImGuiRender"):
+                    for layer in self.layer_stack:
+                        layer.on_imgui_render()
+                self.imgui_layer.end()
+
+                self.window.on_update()
+
+    @HZ_PROFILE_FUNCTION
     def on_event(self, event: Event) -> None:
         dispatcher = EventDispatcher(event)
         dispatcher.dispatch(WindowCloseEvent, self.on_window_close)
@@ -62,9 +71,11 @@ class Application:
             if event.handled:
                 break
 
+    @HZ_PROFILE_FUNCTION
     def push_layer(self, layer: Layer):
         self.layer_stack.push_layer(layer)
 
+    @HZ_PROFILE_FUNCTION
     def push_overlay(self, layer: Layer):
         self.layer_stack.push_overlay(layer)
 
@@ -72,6 +83,7 @@ class Application:
         self.running = False
         return True
 
+    @HZ_PROFILE_FUNCTION
     def on_window_resize(self, event: WindowResizeEvent) -> bool:
         if event.width == 0 or event.height == 0:
             self.minimized = True

@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from pyhazel.renderer import VertexArray
 from pyhazel.renderer import ShaderDataType
+from pyhazel.debug.instrumentor import *
 from OpenGL.GL import *
 
 if TYPE_CHECKING:
@@ -41,6 +42,7 @@ def shader_data_type_to_opengl_base_type(value: ShaderDataType):
 
 
 class OpenGLVertexArray(VertexArray):
+    @HZ_PROFILE_FUNCTION
     def __init__(self) -> None:
         super().__init__()
         self._index_buffer: IndexBuffer = None
@@ -49,12 +51,20 @@ class OpenGLVertexArray(VertexArray):
         self._vertex_buffer_offset = 0
         glBindVertexArray(self._renderer_id)
 
+    @HZ_PROFILE_FUNCTION
+    def destroy(self):
+        pass
+        # todo: wire up to parent class and implement
+
+    @HZ_PROFILE_FUNCTION
     def bind(self):
         glBindVertexArray(self._renderer_id)
 
+    @HZ_PROFILE_FUNCTION
     def unbind(self):
         glBindVertexArray(0)
 
+    @HZ_PROFILE_FUNCTION
     def add_vertex_buffer(self, vertex_buffer: VertexBuffer):
         assert len(vertex_buffer.buffer_layout.elements) > 0
 
@@ -76,15 +86,16 @@ class OpenGLVertexArray(VertexArray):
 
         self.vertex_buffers.append(vertex_buffer)
 
-    @property
+    @ property
     def vertex_buffers(self) -> list[VertexBuffer]:
         return self._vertex_buffers
 
-    @property
+    @ property
     def index_buffer(self) -> IndexBuffer:
         return self._index_buffer
 
     @index_buffer.setter
+    @HZ_PROFILE_FUNCTION
     def index_buffer(self, value: IndexBuffer):
         glBindVertexArray(self._renderer_id)
         value.bind()

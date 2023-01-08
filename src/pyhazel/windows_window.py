@@ -14,6 +14,7 @@ from .events import MouseMovedEvent
 from .events import MouseScrolledEvent
 from .events.key_event import KeyTypedEvent
 from .platform.opengl import OpenGLContent
+from pyhazel.debug.instrumentor import *
 import glfw
 
 
@@ -34,6 +35,7 @@ class WindowsWindow(Window):
         is_vsync: bool = False
         event_callback: EventCallbackType = None
 
+    @HZ_PROFILE_FUNCTION
     def __init__(self, props: WindowProps) -> None:
         super().__init__()
         self.data = self.WindowData(
@@ -47,11 +49,13 @@ class WindowsWindow(Window):
 
         # ensure glfw is initialized only once
         if not self.is_glfw_initialized:
+            HZ_PROFILE_SCOPE("glfwInit")
             if not glfw.init():
                 raise Exception("glfw can not be initialized")
             glfw.set_error_callback(glfw_error_callback)
             self.is_glfw_initialized = True
 
+        HZ_PROFILE_SCOPE("glfwCreateWindow")
         self.window = glfw.create_window(
             props.width,
             props.height,
@@ -72,6 +76,12 @@ class WindowsWindow(Window):
         self.glfw_callbacks()
         self.is_vsync = True
 
+    @HZ_PROFILE_FUNCTION
+    def destroy(self):
+        """This method replicates the semantics a C/C++ destructor."""
+        # Todo: propogate destroy to clean up resources before exiiting application
+        pass
+
     def glfw_callbacks(self):
         glfw.set_window_size_callback(self.window, self.window_size_callback)
         glfw.set_window_close_callback(self.window, self.window_close_callback)
@@ -84,6 +94,7 @@ class WindowsWindow(Window):
     def set_event_callback(self, event_callback: EventCallbackType) -> None:
         self.data.event_callback = event_callback
 
+    @HZ_PROFILE_FUNCTION
     def on_update(self) -> None:
         glfw.poll_events()
         self.context.swap_buffers()
@@ -101,6 +112,7 @@ class WindowsWindow(Window):
         return self.data.is_vsync
 
     @is_vsync.setter
+    @HZ_PROFILE_FUNCTION
     def is_vsync(self, value: bool):
         if value:
             glfw.swap_interval(1)
@@ -113,6 +125,7 @@ class WindowsWindow(Window):
     def native_window(self) -> bool:
         return self.window
 
+    @HZ_PROFILE_FUNCTION
     def shutdown(self):
         glfw.destroy_window(self.window)
 

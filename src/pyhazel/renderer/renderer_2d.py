@@ -12,6 +12,7 @@ from .index_buffer import IndexBuffer
 from .texture import Texture2D
 from .shader import Shader
 from .render_command import RenderCommand
+from pyhazel.debug.instrumentor import *
 
 import numpy as np
 import glm
@@ -33,6 +34,7 @@ class Renderer2D:
     data: Renderer2DStorage = None
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def init(cls):
         cls.data = Renderer2DStorage()
         cls.data.quad_vertex_array = VertexArray.create()
@@ -75,10 +77,12 @@ class Renderer2D:
         cls.data.texture_shader.set_int("u_Texture", 0)
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def shutdown(cls):
         cls.data = None
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def begin_scene(cls, camera: OrthographicCamera):
         shader = cls.data.texture_shader
         shader.bind()
@@ -88,10 +92,12 @@ class Renderer2D:
         )
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def end_scene(cls):
         pass
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def draw_quad(cls, position: glm.vec3, size: glm.vec2, color: glm.vec4):
         shader = cls.data.texture_shader
         texture = cls.data.white_texture
@@ -107,6 +113,7 @@ class Renderer2D:
         RenderCommand.draw_vertex_array(cls.data.quad_vertex_array)
 
     @classmethod
+    @HZ_PROFILE_FUNCTION
     def draw_texture(cls, position: glm.vec3, size: glm.vec2, texture: Texture2D):
         shader = cls.data.texture_shader
 

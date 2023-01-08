@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from copy import copy
 from . import RenderCommand
 from .renderer_2d import Renderer2D
+from pyhazel.debug.instrumentor import *
 import glm
 
 if TYPE_CHECKING:
@@ -25,6 +26,7 @@ class Renderer:
     scene_data = SceneData()
 
     @staticmethod
+    @HZ_PROFILE_FUNCTION
     def init():
         RenderCommand.init()
         Renderer2D.init()

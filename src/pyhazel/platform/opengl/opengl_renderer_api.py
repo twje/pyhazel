@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from pyhazel.renderer import RendererAPI
+from pyhazel.debug.instrumentor import *
 from OpenGL.GL import *
 import glm
 
@@ -13,6 +14,7 @@ __all__ = ["OpenGLRendererAPI"]
 
 
 class OpenGLRendererAPI(RendererAPI):
+    @HZ_PROFILE_FUNCTION
     def init(self):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

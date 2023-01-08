@@ -1,4 +1,5 @@
 from copy import copy
+from pyhazel.debug.instrumentor import *
 import glm
 
 
@@ -6,6 +7,7 @@ __all__ = ["OrthographicCamera"]
 
 
 class OrthographicCamera:
+    @HZ_PROFILE_FUNCTION
     def __init__(self, left: float, right: float, bottom: float, top: float) -> None:
         self.projection_matrix = glm.ortho(left, right, bottom, top, -1, 1)
         self.view_matrix = glm.mat4(1)
@@ -32,10 +34,12 @@ class OrthographicCamera:
         self._rotation = value
         self._recalculate_view_matric()
 
+    @HZ_PROFILE_FUNCTION
     def set_projection_matrix(self, left: float, right: float, bottom: float, top: float):
         self.projection_matrix = glm.ortho(left, right, bottom, top, -1, 1)
         self.view_projection_matrix = self.projection_matrix * self.view_matrix
 
+    @HZ_PROFILE_FUNCTION
     def _recalculate_view_matric(self):
         transform = glm.translate(glm.mat4(1), self.position) * glm.rotate(
             glm.mat4(1),
