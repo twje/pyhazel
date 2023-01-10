@@ -14,6 +14,7 @@ from .events import MouseMovedEvent
 from .events import MouseScrolledEvent
 from .events.key_event import KeyTypedEvent
 from .platform.opengl import OpenGLContent
+from .config import *
 from pyhazel.debug.instrumentor import *
 import glfw
 
@@ -56,6 +57,9 @@ class WindowsWindow(Window):
             self.is_glfw_initialized = True
 
         HZ_PROFILE_SCOPE("glfwCreateWindow")
+        if DEBUG:
+            glfw.window_hint(glfw.OPENGL_DEBUG_CONTEXT, glfw.TRUE)
+
         self.window = glfw.create_window(
             props.width,
             props.height,

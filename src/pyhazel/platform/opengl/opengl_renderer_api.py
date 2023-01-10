@@ -1,3 +1,7 @@
+"""
+Todo:
+    - Port commit '8c3cc55b93a7261f0ae45f56082a05001eebbdec' - Logging OpenGL messages (#114)
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
