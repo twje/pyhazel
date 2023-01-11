@@ -1,7 +1,7 @@
 from .event import Event
 from .event import EventType
 from .event import EventCategory
-
+from pyhazel.mouse_codes import MouseCode
 
 __all__ = [
     "MouseMovedEvent",
@@ -44,16 +44,16 @@ class MouseScrolledEvent(Event):
 
 
 class MouseButtonEvent(Event):
-    def __init__(self, button: int) -> None:
+    def __init__(self, button: MouseCode) -> None:
         super().__init__()
-        self.button = button
+        self.button: MouseCode = button
 
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryMouseButton | EventCategory.EventCategoryInput
 
 
 class MouseButtonPressedEvent(MouseButtonEvent):
-    def __init__(self, button: int) -> None:
+    def __init__(self, button: MouseCode) -> None:
         super().__init__(button)
 
     def get_static_type() -> EventType:
@@ -64,7 +64,7 @@ class MouseButtonPressedEvent(MouseButtonEvent):
 
 
 class MouseButtonReleasedEvent(MouseButtonEvent):
-    def __init__(self, button: int) -> None:
+    def __init__(self, button: MouseCode) -> None:
         super().__init__(button)
 
     def get_static_type() -> EventType:

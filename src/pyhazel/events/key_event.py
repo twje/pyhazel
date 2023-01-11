@@ -1,6 +1,8 @@
 from .event import Event
 from .event import EventType
 from .event import EventCategory
+from pyhazel.key_codes import KeyCode
+
 
 __all__ = [
     "KeyPressedEvent",
@@ -9,16 +11,16 @@ __all__ = [
 
 
 class KeyEvent(Event):
-    def __init__(self, keycode: int) -> None:
+    def __init__(self, keycode: KeyCode) -> None:
         super().__init__()
-        self.keycode = keycode
+        self.keycode: KeyCode = keycode
 
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryKeyboard | EventCategory.EventCategoryInput
 
 
 class KeyPressedEvent(KeyEvent):
-    def __init__(self, keycode: int, repeat_count: int) -> None:
+    def __init__(self, keycode: KeyCode, repeat_count: int) -> None:
         super().__init__(keycode)
         self.repeat_count = repeat_count
 
@@ -30,7 +32,7 @@ class KeyPressedEvent(KeyEvent):
 
 
 class KeyTypedEvent(KeyEvent):
-    def __init__(self, keycode) -> None:
+    def __init__(self, keycode: KeyCode) -> None:
         super().__init__(keycode)
 
     def get_static_type() -> EventType:
@@ -41,7 +43,7 @@ class KeyTypedEvent(KeyEvent):
 
 
 class KeyReleasedEvent(KeyEvent):
-    def __init__(self, keycode) -> None:
+    def __init__(self, keycode: KeyCode) -> None:
         super().__init__(keycode)
 
     def get_static_type() -> EventType:

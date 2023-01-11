@@ -1,5 +1,7 @@
 from abc import ABC
 from abc import abstractmethod
+from .key_codes import KeyCode
+from .mouse_codes import MouseCode
 
 __all__ = ["Input"]
 
@@ -15,13 +17,13 @@ class Input(ABC):
 
     # ----------
     # Client API
-    # ----------    
+    # ----------
     @classmethod
-    def is_key_pressed(cls, keycode: int) -> bool:
+    def is_key_pressed(cls, keycode: KeyCode) -> bool:
         return cls.instance.is_key_pressed_impl(keycode)
 
     @classmethod
-    def is_mouse_button_pressed(cls, button: int) -> bool:
+    def is_mouse_button_pressed(cls, button: MouseCode) -> bool:
         return cls.instance.is_mouse_button_pressed_impl(button)
 
     @classmethod
@@ -40,11 +42,11 @@ class Input(ABC):
     # Abstract Methods
     # ----------------
     @abstractmethod
-    def is_key_pressed_impl(self, keycode: int) -> bool:
+    def is_key_pressed_impl(self, keycode: KeyCode) -> bool:
         pass
 
     @abstractmethod
-    def is_mouse_button_pressed_impl(self, button: int) -> bool:
+    def is_mouse_button_pressed_impl(self, button: MouseCode) -> bool:
         pass
 
     @abstractmethod

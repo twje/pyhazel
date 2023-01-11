@@ -14,8 +14,10 @@ from .events import MouseMovedEvent
 from .events import MouseScrolledEvent
 from .events.key_event import KeyTypedEvent
 from .platform.opengl import OpenGLContent
-from .config import *
+from pyhazel.key_codes import KeyCode
+from pyhazel.mouse_codes import MouseCode
 from pyhazel.debug.instrumentor import *
+from .config import *
 import glfw
 
 
@@ -90,7 +92,7 @@ class WindowsWindow(Window):
         glfw.set_window_size_callback(self.window, self.window_size_callback)
         glfw.set_window_close_callback(self.window, self.window_close_callback)
         glfw.set_key_callback(self.window, self.key_callback)
-        glfw.set_mouse_button_callback(self.window, self.mouse_button_ballback)
+        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback)
         glfw.set_scroll_callback(self.window, self.scroll_callback)
         glfw.set_cursor_pos_callback(self.window, self.cursor_pos_callback)
         glfw.set_char_callback(self.window, self.char_callback)
@@ -156,23 +158,23 @@ class WindowsWindow(Window):
         data = glfw.get_window_user_pointer(window)
 
         if action == glfw.PRESS:
-            event = KeyPressedEvent(key, 0)
+            event = KeyPressedEvent(KeyCode(key), 0)
             data.event_callback(event)
         elif action == glfw.RELEASE:
-            event = KeyReleasedEvent(key)
+            event = KeyReleasedEvent(KeyCode(key))
             data.event_callback(event)
         elif action == glfw.REPEAT:
-            event = KeyPressedEvent(key, 1)
+            event = KeyPressedEvent(KeyCode(key), 1)
             data.event_callback(event)
 
-    def mouse_button_ballback(self, window: glfw._GLFWwindow, button: int, action: int, mods: int):
+    def mouse_button_callback(self, window: glfw._GLFWwindow, button: int, action: int, mods: int):
         data = glfw.get_window_user_pointer(window)
 
         if action == glfw.PRESS:
-            event = MouseButtonPressedEvent(button)
+            event = MouseButtonPressedEvent(MouseCode(button))
             data.event_callback(event)
         elif action == glfw.RELEASE:
-            event = MouseButtonReleasedEvent(button)
+            event = MouseButtonReleasedEvent(MouseCode(button))
             data.event_callback(event)
 
     def scroll_callback(self, window: glfw._GLFWwindow, x_offset: float, y_offset: float):
@@ -187,5 +189,5 @@ class WindowsWindow(Window):
 
     def char_callback(self,  window: glfw._GLFWwindow, key: int):
         data = glfw.get_window_user_pointer(window)
-        event = KeyTypedEvent(key)
+        event = KeyTypedEvent(KeyCode(key))
         data.event_callback(event)

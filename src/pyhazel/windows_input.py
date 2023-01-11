@@ -1,19 +1,21 @@
 from .application import Application
 from .input import Input
+from pyhazel.key_codes import KeyCode
+from pyhazel.mouse_codes import MouseCode
 import glfw
 
 __all__ = ["WindowsInput"]
 
 
 class WindowsInput(Input):
-    def is_key_pressed_impl(self, keycode: int) -> bool:
+    def is_key_pressed_impl(self, keycode: KeyCode) -> bool:
         window = Application.instance.window.native_window
-        state = glfw.get_key(window, keycode)
+        state = glfw.get_key(window, int(keycode))
         return state == glfw.PRESS or state == glfw.REPEAT
 
-    def is_mouse_button_pressed_impl(self, button: int) -> bool:
+    def is_mouse_button_pressed_impl(self, button: MouseCode) -> bool:
         window = Application.instance.window.native_window
-        state = glfw.get_mouse_button(window, button)
+        state = glfw.get_mouse_button(window, int(button))
         return state == glfw.PRESS
 
     def get_mouse_position_impl(self) -> tuple[int, int]:

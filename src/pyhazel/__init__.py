@@ -7,7 +7,7 @@ from .layer import Layer
 
 from .input import Input
 from .key_codes import *
-from .mouse_button_codes import *
+from .mouse_codes import *
 
 from .imgui_layer import ImGuiLayer
 from .timestep import Timestep
