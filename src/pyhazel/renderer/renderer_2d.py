@@ -123,13 +123,12 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_rotated_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_deg: float, color: glm.vec4 = glm.vec4(1.0)):
+    def draw_rotated_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, color: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
         shader = cls.data.texture_shader
         texture = cls.data.white_texture
-        rotation_rad = math.radians(rotation_deg)
 
         # set uniforms
         shader.set_float4("u_Color", color)
@@ -169,11 +168,9 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_rotated_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_deg: float, texture: Texture2D, tilingFactor: float = 1, tintColor: glm.vec4 = glm.vec4(1.0)):
+    def draw_rotated_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, texture: Texture2D, tilingFactor: float = 1, tintColor: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
-
-        rotation_rad = math.radians(rotation_deg)
 
         # set uniforms
         shader = cls.data.texture_shader
