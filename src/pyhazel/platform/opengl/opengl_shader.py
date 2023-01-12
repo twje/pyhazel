@@ -115,6 +115,14 @@ class OpenGLShader(Shader):
         self.upload_uniform_int(name, value)
 
     @HZ_PROFILE_FUNCTION
+    def set_float(self, name: str, value: float):
+        self.upload_uniform_float(name, value)
+
+    @HZ_PROFILE_FUNCTION
+    def set_float2(self, name: str, value: glm.vec2):
+        self.upload_uniform_float2(name, value)
+
+    @HZ_PROFILE_FUNCTION
     def set_float3(self, name: str, value: glm.vec3):
         self.upload_uniform_float3(name, value)
 

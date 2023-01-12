@@ -45,6 +45,14 @@ class Shader(ABC):
         pass
 
     @abstractmethod
+    def set_float(self, name: str, value: float):
+        pass
+
+    @abstractmethod
+    def set_float2(self, name: str, value: glm.vec2):
+        pass
+
+    @abstractmethod
     def set_float3(self, name: str, value: glm.vec3):
         pass
 
