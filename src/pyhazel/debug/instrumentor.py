@@ -4,6 +4,7 @@ from pyhazel.config import *
 from dataclasses import dataclass
 from io import TextIOWrapper
 from functools import wraps
+from threading import Lock
 import time
 import json
 
@@ -37,7 +38,7 @@ class Instrumentor:
         self.current_session: Optional[InstrumentationSession] = None
         self.fp: TextIOWrapper = None
         self.output: dict = {}
-        self.profile_count: int = 0
+        self.mutex = Lock()
 
     @classmethod
     def get(cls):
@@ -46,16 +47,22 @@ class Instrumentor:
         return cls.__instance
 
     def begin_session(self, name: str, filepath: str = "results.json"):
-        self.fp = open(filepath, "w")
-        self.write_header()
-        self.current_session = InstrumentationSession(name)
+        with self.mutex:
+            if self.current_session is not None:
+                # If there is already a current session, then close it before beginning new one.
+                # Subsequent profiling output meant for the original session will end up in the
+                # newly opened session instead.  That's better than having badly formatted
+                # profiling output.
+                print(
+                    f"Instrumentor::BeginSession('{name}') when session '{self.current_session.name}' already open.")
+            else:
+                self.fp = open(filepath, "w")
+                self.current_session = InstrumentationSession(name)
+                self.write_header()
 
     def end_session(self):
-        self.write_footer()
-        self.fp.close()
-        self.current_session = None
-        self.output = {}
-        self.profile_count = 0
+        with self.mutex:
+            self.__internal_end_session()
 
     def write_profile(self, result: ProfileResult):
         event = {
@@ -67,13 +74,23 @@ class Instrumentor:
             "tid": result.thread_id,
             "ts": result.start
         }
-        self.output["traceEvents"].append(event)
+
+        with self.mutex:
+            if self.current_session is not None:
+                self.output["traceEvents"].append(event)
 
     def write_header(self):
         self.output = {"otherData": {}, "traceEvents": []}
 
     def write_footer(self):
         json.dump(self.output, self.fp)
+
+    def __internal_end_session(self):
+        if self.current_session is not None:
+            self.write_footer()
+            self.fp.close()
+            self.current_session = None
+            self.output = {}
 
 
 class InstrumentationTimer:
