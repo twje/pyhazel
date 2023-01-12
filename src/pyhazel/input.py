@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC
 from abc import abstractmethod
 from .key_codes import KeyCode
 from .mouse_codes import MouseCode
+from .config import *
 
 __all__ = ["Input"]
 
@@ -9,15 +12,17 @@ __all__ = ["Input"]
 class Input(ABC):
     instance: "Input" = None
 
-    @classmethod
-    def init_singleton(cls) -> "Input":
-        assert cls.instance is None
-        from .windows_input import WindowsInput
-        cls.instance = WindowsInput()
-
     # ----------
     # Client API
     # ----------
+    @staticmethod
+    def create() -> Input:
+        if PLATFORM == Platform.HZ_PLATFORM_WINDOWS:
+            from .windows_input import WindowsInput
+            return WindowsInput()
+        else:
+            assert False, "Unknown platform!"
+
     @classmethod
     def is_key_pressed(cls, keycode: KeyCode) -> bool:
         return cls.instance.is_key_pressed_impl(keycode)
@@ -62,4 +67,4 @@ class Input(ABC):
         pass
 
 
-Input.init_singleton()
+Input.instance = Input.create()

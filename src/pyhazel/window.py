@@ -4,7 +4,7 @@ from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
 from .events import Event
-
+from .config import *
 
 __all__ = [
     "Window",
@@ -25,9 +25,11 @@ class WindowProps:
 class Window(ABC):
     @staticmethod
     def create(window_props: WindowProps = WindowProps()) -> "Window":
-        # avoid circular reference
-        from .windows_window import WindowsWindow
-        return WindowsWindow(window_props)
+        if PLATFORM == Platform.HZ_PLATFORM_WINDOWS:
+            from .windows_window import WindowsWindow
+            return WindowsWindow(window_props)
+        else:
+            assert False, "Unknown platform!"
 
     @abstractmethod
     def set_event_callback(self, event_callback: EventCallbackType) -> None:
