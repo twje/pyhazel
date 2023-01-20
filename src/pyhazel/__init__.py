@@ -30,6 +30,7 @@ from .renderer import ShaderLibrary
 from .renderer import Texture2D
 
 # all events
+from .events import EventDispatcher
 from .events import Event
 from .events import EventType
 from .events.key_event import *

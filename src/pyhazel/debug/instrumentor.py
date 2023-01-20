@@ -101,7 +101,10 @@ class InstrumentationTimer:
     def __enter__(self):
         pass
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
+        if exc_type is not None:
+            return
+
         Instrumentor.get().write_profile(
             ProfileResult(
                 name=self.name,
