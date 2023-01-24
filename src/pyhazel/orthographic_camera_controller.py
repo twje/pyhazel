@@ -97,6 +97,9 @@ class OrthographicCameraController:
 
     @HZ_PROFILE_FUNCTION
     def on_window_resized(self, e: WindowResizeEvent):
+        if e.height == 0:
+            return False
+
         self.aspect_ratio = e.width/e.height
         self.camera.set_projection_matrix(
             -self.aspect_ratio * self.zoom_level,

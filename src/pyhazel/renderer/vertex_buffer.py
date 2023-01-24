@@ -15,15 +15,36 @@ __all__ = ["VertexBuffer"]
 
 class VertexBuffer(ABC):
     @staticmethod
-    def create(data: ndarray) -> VertexBuffer:
+    def create(size: int) -> VertexBuffer:
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
         elif RendererAPI.api == RendererAPI.API.OpenGL:
             from pyhazel.platform.opengl import OpenGLVertexBuffer
-            return OpenGLVertexBuffer(data)
+            return OpenGLVertexBuffer.init_factory(size)
 
         assert False, "Renderer type is undefined"
+
+    @staticmethod
+    def create_from_data(data: ndarray) -> VertexBuffer:
+        if RendererAPI.api == RendererAPI.API.NONE:
+            print("RendererAPI.API.NONE is not supported")
+            return
+        elif RendererAPI.api == RendererAPI.API.OpenGL:
+            from pyhazel.platform.opengl import OpenGLVertexBuffer
+            return OpenGLVertexBuffer.init_from_data_factory(data)
+
+        assert False, "Renderer type is undefined"
+
+    @classmethod
+    @abstractmethod
+    def init_factory(cls, size: int):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def init_from_data_factory(cls, data: ndarray):
+        pass
 
     @abstractmethod
     def bind(self):
@@ -41,4 +62,8 @@ class VertexBuffer(ABC):
     @buffer_layout.setter
     @abstractmethod
     def buffer_layout(self, value: BufferLayout):
+        pass
+
+    @abstractmethod
+    def set_data(self, data: ndarray, size=0):
         pass

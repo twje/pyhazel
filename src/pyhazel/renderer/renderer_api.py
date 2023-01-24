@@ -47,7 +47,7 @@ class RendererAPI(ABC):
         pass
 
     @abstractmethod
-    def draw_vertex_array(self, vertex_array: VertexArray):
+    def draw_vertex_array(self, vertex_array: VertexArray, count=0):
         pass
 
     @classmethod

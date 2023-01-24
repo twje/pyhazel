@@ -34,10 +34,13 @@ class OpenGLRendererAPI(RendererAPI):
     def clear(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    def draw_vertex_array(self, vertex_array: VertexArray):
+    def draw_vertex_array(self, vertex_array: VertexArray, index_count: int = 0):
+        vertex_array.bind()
+
+        count = vertex_array.index_buffer.count if index_count == 0 else index_count
         glDrawElements(
             GL_TRIANGLES,
-            vertex_array.index_buffer.count,
+            count,
             GL_UNSIGNED_INT,
             None
         )

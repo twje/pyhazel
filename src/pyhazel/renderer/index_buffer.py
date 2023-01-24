@@ -14,7 +14,7 @@ __all__ = ["IndexBuffer"]
 
 class IndexBuffer(ABC):
     @staticmethod
-    def create(data: ndarray) -> IndexBuffer:
+    def create(data: ndarray, count: int = 0) -> IndexBuffer:
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
