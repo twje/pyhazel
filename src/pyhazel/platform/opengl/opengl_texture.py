@@ -135,3 +135,6 @@ class OpenGLTexture(Texture2D):
     @HZ_PROFILE_FUNCTION
     def delete(self) -> None:
         glDeleteTextures(1, self.renderer_id)
+
+    def __eq__(self, __o: object) -> bool:
+        return self.renderer_id == __o.renderer_id

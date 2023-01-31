@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 from dataclasses import dataclass
+from dataclasses import field
 
 from .vertex_array import VertexArray
 from .vertex_buffer import VertexBuffer
@@ -28,6 +29,8 @@ class QuadVertexData:
         BufferElement(ShaderDataType.FLOAT3, "a_Position"),
         BufferElement(ShaderDataType.FLOAT4, "a_Color"),
         BufferElement(ShaderDataType.FLOAT2, "a_TexCoord"),
+        BufferElement(ShaderDataType.FLOAT, "a_TexIndex"),
+        BufferElement(ShaderDataType.FLOAT, "a_TilingFactor"),
     )
 
     def __init__(self, max_vertices: int) -> None:
@@ -53,7 +56,7 @@ class QuadVertexData:
     def clear(self):
         self.vertex_count = 0
 
-    def add_vertex(self, position: glm.vec3, color: glm.vec4, tex_coord: glm.vec2):
+    def add_vertex(self, position: glm.vec3, color: glm.vec4, tex_coord: glm.vec2, tex_index: float, tiling_factor: float):
         # position
         offset = self.get_element_offset(0)
         self.internal_buffer[offset + 0] = position.x
@@ -71,6 +74,14 @@ class QuadVertexData:
         offset = self.get_element_offset(2)
         self.internal_buffer[offset + 0] = tex_coord.x
         self.internal_buffer[offset + 1] = tex_coord.y
+
+        # tex_index
+        offset = self.get_element_offset(3)
+        self.internal_buffer[offset + 0] = tex_index
+
+        # tiling_factor
+        offset = self.get_element_offset(4)
+        self.internal_buffer[offset + 0] = tiling_factor
 
         self.vertex_count += 1
 
@@ -91,15 +102,17 @@ class QuadVertexBuffer:
     def index_count(self) -> int:
         return self.data.index_count
 
-    @property
-    def max_size(self) -> int:
-        return self.data.max_size
-
     def bind_to_vao(self, vao: VertexArray):
         vao.add_vertex_buffer(self.buffer)
 
-    def add_vertex(self, position: glm.vec3, color: glm.vec4, tex_coord: glm.vec2):
-        self.data.add_vertex(position, color, tex_coord)
+    def add_vertex(self, position: glm.vec3, color: glm.vec4, tex_coord: glm.vec2, tex_index: float, tiling_factor: float):
+        self.data.add_vertex(
+            position,
+            color,
+            tex_coord,
+            tex_index,
+            tiling_factor
+        )
 
     def clear(self):
         self.data.clear()
@@ -112,24 +125,29 @@ class QuadVertexBuffer:
 
 
 @dataclass
-class Renderer2DStorage:
+class Renderer2DData:  # todo: rename
     max_quads: int = 1000
     max_verticies: int = max_quads * 4
     max_indicies: int = max_quads * 6
+    max_texture_slots: int = 32  # todo: render caps
 
     quad_vertex_array: Optional[VertexArray] = None
     quad_vertex_buffer: Optional[QuadVertexBuffer] = None
     texture_shader: Optional[Shader] = None
     white_texture: Optional[Texture2D] = None
 
+    texture_slots: list[Optional[Texture2D]] = field(default_factory=lambda: [
+                                                     None for _ in range(Renderer2DData.max_texture_slots)])
+    texture_slot_index: int = 1  # 0 = white texture
+
 
 class Renderer2D:
-    data: Renderer2DStorage = None
+    data: Renderer2DData = None
 
     @classmethod
     @HZ_PROFILE_FUNCTION
     def init(cls):
-        cls.data = Renderer2DStorage()
+        cls.data = Renderer2DData()
 
         # VAO
         cls.data.quad_vertex_array = VertexArray.create()
@@ -156,13 +174,24 @@ class Renderer2D:
         cls.data.quad_vertex_array.index_buffer = square_ib
 
         # White texture
-        cls.data.white_texture = Texture2D.create(1, 1)
+        cls.data.white_texture = cls.create_single_pixel_white_texture()
+
+        # Samplers
+        samplers = np.arange(0, cls.data.max_texture_slots, dtype=np.int32)
 
         # Shader
         shader = Shader.create_from_filepath("assets/shaders/Texture.glsl")
         shader.bind()
-        shader.set_int("u_Texture", 0)
+        shader.set_int_array(
+            "u_Textures",
+            samplers,
+            cls.data.max_texture_slots
+        )
+
         cls.data.texture_shader = shader
+
+        # Set all texture slots to 0
+        cls.data.texture_slots[0] = cls.data.white_texture
 
     @classmethod
     def create_single_pixel_white_texture(self) -> Texture2D:
@@ -173,6 +202,11 @@ class Renderer2D:
         )
         texture.set_data(texture_data, texture_data.nbytes)
         return texture
+
+    @classmethod
+    def bind_texture_slots(cls):
+        for index in range(cls.data.texture_slot_index):
+            cls.data.texture_slots[index].bind(index)
 
     @classmethod
     @HZ_PROFILE_FUNCTION
@@ -193,6 +227,8 @@ class Renderer2D:
         # Quad
         cls.data.quad_vertex_buffer.clear()
 
+        cls.data.texture_slot_index = 1
+
     @classmethod
     @HZ_PROFILE_FUNCTION
     def end_scene(cls):
@@ -201,6 +237,8 @@ class Renderer2D:
 
     @classmethod
     def flush(cls):
+        cls.bind_texture_slots()
+
         RenderCommand.draw_vertex_array(
             cls.data.quad_vertex_array,
             cls.data.quad_vertex_buffer.index_count
@@ -212,25 +250,36 @@ class Renderer2D:
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
+        tex_index = 0  # white texture
+        tiling_factor = 1
+
         cls.data.quad_vertex_buffer.add_vertex(
             position,
             color,
-            glm.vec2(0.0, 0.0)
+            glm.vec2(0.0, 0.0),
+            tex_index,
+            tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
             glm.vec3(position.x + size.x, position.y, 0),
             color,
-            glm.vec2(1.0, 0.0)
+            glm.vec2(1.0, 0.0),
+            tex_index,
+            tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
             glm.vec3(position.x + size.x, position.y + size.y, 0),
             color,
-            glm.vec2(1.0, 1.0)
+            glm.vec2(1.0, 1.0),
+            tex_index,
+            tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
             glm.vec3(position.x, position.y + size.y, 0),
             color,
-            glm.vec2(0.0, 1.0)
+            glm.vec2(0.0, 1.0),
+            tex_index,
+            tiling_factor
         )
 
     @classmethod
@@ -260,8 +309,84 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, texture: Texture2D, tilingFactor: float = 1, tintColor: glm.vec4 = glm.vec4(1.0)):  # tested
-        raise NotImplemented()
+    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
+        if isinstance(position, glm.vec2):
+            position = glm.vec3(position.x, position.y, 0)
+
+        tex_index = 0
+        for index in range(1, cls.data.texture_slot_index):
+            if cls.data.texture_slots[index] == texture:
+                tex_index = index
+                break
+
+        if tex_index == 0:
+            tex_index = cls.data.texture_slot_index
+            cls.data.texture_slots[tex_index] = texture
+            cls.data.texture_slot_index += 1
+
+        cls.data.quad_vertex_buffer.add_vertex(
+            position,
+            tint_color,
+            glm.vec2(0.0, 0.0),
+            tex_index,
+            tiling_factor
+        )
+        cls.data.quad_vertex_buffer.add_vertex(
+            glm.vec3(position.x + size.x, position.y, 0),
+            tint_color,
+            glm.vec2(1.0, 0.0),
+            tex_index,
+            tiling_factor
+        )
+        cls.data.quad_vertex_buffer.add_vertex(
+            glm.vec3(position.x + size.x, position.y + size.y, 0),
+            tint_color,
+            glm.vec2(1.0, 1.0),
+            tex_index,
+            tiling_factor
+        )
+        cls.data.quad_vertex_buffer.add_vertex(
+            glm.vec3(position.x, position.y + size.y, 0),
+            tint_color,
+            glm.vec2(0.0, 1.0),
+            tex_index,
+            tiling_factor
+        )
+
+        # tex_index = 0  # white texture
+        # tiling_factor = 1
+
+        # cls.data.quad_vertex_buffer.add_vertex(
+        #     position,
+        #     color,
+        #     glm.vec2(0.0, 0.0),
+        #     tex_index,
+        #     tiling_factor
+        # )
+        # cls.data.quad_vertex_buffer.add_vertex(
+        #     glm.vec3(position.x + size.x, position.y, 0),
+        #     color,
+        #     glm.vec2(1.0, 0.0),
+        #     tex_index,
+        #     tiling_factor
+        # )
+        # cls.data.quad_vertex_buffer.add_vertex(
+        #     glm.vec3(position.x + size.x, position.y + size.y, 0),
+        #     color,
+        #     glm.vec2(1.0, 1.0),
+        #     tex_index,
+        #     tiling_factor
+        # )
+        # cls.data.quad_vertex_buffer.add_vertex(
+        #     glm.vec3(position.x, position.y + size.y, 0),
+        #     color,
+        #     glm.vec2(0.0, 1.0),
+        #     tex_index,
+        #     tiling_factor
+        # )
+
+        # ====================
+
         # if isinstance(position, glm.vec2):
         #     position = glm.vec3(position.x, position.y, 0)
 

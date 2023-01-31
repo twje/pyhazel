@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from pathlib import Path
 from pyhazel.renderer.shader import Shader
 from pyhazel.debug.instrumentor import *
@@ -5,6 +8,9 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import glm
 
+
+if TYPE_CHECKING:
+    from numpy import ndarray
 
 __all__ = ["OpenGLShader"]
 
@@ -115,6 +121,10 @@ class OpenGLShader(Shader):
         self.upload_uniform_int(name, value)
 
     @HZ_PROFILE_FUNCTION
+    def set_int_array(self, name: str, values: ndarray, count: int):
+        self.upload_uniform_int_array(name, values, count)
+
+    @HZ_PROFILE_FUNCTION
     def set_float(self, name: str, value: float):
         self.upload_uniform_float(name, value)
 
@@ -138,6 +148,11 @@ class OpenGLShader(Shader):
         self.bind()
         location = glGetUniformLocation(self._renderer_id, name)
         glUniform1i(location, value)
+
+    # todo get np type
+    def upload_uniform_int_array(self, name: str, values: ndarray, count: int):
+        location = glGetUniformLocation(self._renderer_id, name)
+        glUniform1iv(location, count, values)
 
     def upload_uniform_float(self, name: str, value: float):
         self.bind()

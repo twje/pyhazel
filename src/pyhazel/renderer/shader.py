@@ -1,17 +1,23 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from abc import ABC
 from abc import abstractmethod
 from .renderer_api import RendererAPI
+import numpy as np
 import glm
+
+
+if TYPE_CHECKING:
+    from numpy import ndarray
 
 __all__ = ["Shader"]
 
 
 class Shader(ABC):
     @staticmethod
-    def create_from_filepath(filepath: str):
+    def create_from_filepath(filepath: str) -> Shader:
         if RendererAPI.api == RendererAPI.API.NONE:
             print("RendererAPI.API.NONE is not supported")
             return
@@ -42,6 +48,10 @@ class Shader(ABC):
 
     @abstractmethod
     def set_int(self, name: str, value: int):
+        pass
+
+    @abstractmethod
+    def set_int_array(self, name: str, values: ndarray, count: int):
         pass
 
     @abstractmethod
