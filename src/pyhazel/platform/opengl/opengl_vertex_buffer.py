@@ -24,6 +24,8 @@ class OpenGLVertexBuffer(VertexBuffer):
 
     @classmethod
     def init_factory(cls, size: int):
+        # GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
+        # Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
         instance = cls()
         glBindBuffer(GL_ARRAY_BUFFER, instance._renderer_id)
         glBufferData(GL_ARRAY_BUFFER, size, None, GL_DYNAMIC_DRAW)
@@ -31,6 +33,8 @@ class OpenGLVertexBuffer(VertexBuffer):
 
     @classmethod
     def init_from_data_factory(cls, data: ndarray):
+        # GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
+        # Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
         instance = cls()
         glBindBuffer(GL_ARRAY_BUFFER, instance._renderer_id)
         glBufferData(GL_ARRAY_BUFFER, data.nbytes, data, GL_STATIC_DRAW)
