@@ -140,6 +140,9 @@ class Renderer2DData:  # todo: rename
                                                      None for _ in range(Renderer2DData.max_texture_slots)])
     texture_slot_index: int = 1  # 0 = white texture
 
+    quad_vertex_positions: list[Optional[glm.vec4]] = field(
+        default_factory=lambda: [None for _ in range(4)])
+
 
 class Renderer2D:
     data: Renderer2DData = None
@@ -192,6 +195,11 @@ class Renderer2D:
 
         # Set all texture slots to 0
         cls.data.texture_slots[0] = cls.data.white_texture
+
+        cls.data.quad_vertex_positions[0] = glm.vec4(-0.5, -0.5, 0.0, 1.0)
+        cls.data.quad_vertex_positions[1] = glm.vec4(0.5, -0.5, 0.0, 1.0)
+        cls.data.quad_vertex_positions[2] = glm.vec4(0.5,  0.5, 0.0, 1.0)
+        cls.data.quad_vertex_positions[3] = glm.vec4(-0.5,  0.5, 0.0, 1.0)
 
     @classmethod
     def create_single_pixel_white_texture(self) -> Texture2D:
@@ -246,36 +254,53 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, color: glm.vec4 = glm.vec4(1.0)):  # tested
+    def compute_transform(self, position: glm.vec3, size: glm.vec2, rotation: float):
+        translate = glm.translate(glm.mat4(1.0), position)
+        if rotation == 0:
+            rotate = glm.mat4(1)
+        else:
+            rotate = glm.rotate(
+                glm.mat4(1.0),
+                glm.radians(rotation),
+                glm.vec3(0, 0, 1)
+            )
+        scale = glm.scale(glm.mat4(1.0), glm.vec3(size.x, size.y, 1.0))
+
+        return translate * rotate * scale
+
+    @classmethod
+    @HZ_PROFILE_FUNCTION
+    def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, color: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
+        transform = cls.compute_transform(position, size, rotation)
         tex_index = 0  # white texture
         tiling_factor = 1
 
         cls.data.quad_vertex_buffer.add_vertex(
-            position,
+            transform * cls.data.quad_vertex_positions[0],
             color,
             glm.vec2(0.0, 0.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x + size.x, position.y, 0),
+            transform * cls.data.quad_vertex_positions[1],
             color,
             glm.vec2(1.0, 0.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x + size.x, position.y + size.y, 0),
+            transform * cls.data.quad_vertex_positions[2],
             color,
             glm.vec2(1.0, 1.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x, position.y + size.y, 0),
+            transform * cls.data.quad_vertex_positions[3],
             color,
             glm.vec2(0.0, 1.0),
             tex_index,
@@ -284,32 +309,7 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_rotated_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, color: glm.vec4 = glm.vec4(1.0)):
-        raise NotImplemented()
-        # if isinstance(position, glm.vec2):
-        #     position = glm.vec3(position.x, position.y, 0)
-
-        # shader = cls.data.texture_shader
-        # texture = cls.data.white_texture
-
-        # # set uniforms
-        # shader.set_float4("u_Color", color)
-        # shader.set_float("u_TilingFactor", 1.0)
-        # texture.bind()
-
-        # # compute transform
-        # translate = glm.translate(glm.mat4(1), position)
-        # rotate = glm.rotate(glm.mat4(1), rotation_rad, glm.vec3(0, 0, 1))
-        # scale = glm.scale(glm.mat4(1), glm.vec3(size.x, size.y, 1))
-        # transform = translate * rotate * scale
-        # shader.set_mat4("u_Transform", transform)
-
-        # cls.data.quad_vertex_array.bind()
-        # RenderCommand.draw_vertex_array(cls.data.quad_vertex_array)
-
-    @classmethod
-    @HZ_PROFILE_FUNCTION
-    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
+    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
@@ -324,106 +324,33 @@ class Renderer2D:
             cls.data.texture_slots[tex_index] = texture
             cls.data.texture_slot_index += 1
 
+        transform = cls.compute_transform(position, size, rotation)
+
         cls.data.quad_vertex_buffer.add_vertex(
-            position,
+            transform * cls.data.quad_vertex_positions[0],
             tint_color,
             glm.vec2(0.0, 0.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x + size.x, position.y, 0),
+            transform * cls.data.quad_vertex_positions[1],
             tint_color,
             glm.vec2(1.0, 0.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x + size.x, position.y + size.y, 0),
+            transform * cls.data.quad_vertex_positions[2],
             tint_color,
             glm.vec2(1.0, 1.0),
             tex_index,
             tiling_factor
         )
         cls.data.quad_vertex_buffer.add_vertex(
-            glm.vec3(position.x, position.y + size.y, 0),
+            transform * cls.data.quad_vertex_positions[3],
             tint_color,
             glm.vec2(0.0, 1.0),
             tex_index,
             tiling_factor
         )
-
-        # tex_index = 0  # white texture
-        # tiling_factor = 1
-
-        # cls.data.quad_vertex_buffer.add_vertex(
-        #     position,
-        #     color,
-        #     glm.vec2(0.0, 0.0),
-        #     tex_index,
-        #     tiling_factor
-        # )
-        # cls.data.quad_vertex_buffer.add_vertex(
-        #     glm.vec3(position.x + size.x, position.y, 0),
-        #     color,
-        #     glm.vec2(1.0, 0.0),
-        #     tex_index,
-        #     tiling_factor
-        # )
-        # cls.data.quad_vertex_buffer.add_vertex(
-        #     glm.vec3(position.x + size.x, position.y + size.y, 0),
-        #     color,
-        #     glm.vec2(1.0, 1.0),
-        #     tex_index,
-        #     tiling_factor
-        # )
-        # cls.data.quad_vertex_buffer.add_vertex(
-        #     glm.vec3(position.x, position.y + size.y, 0),
-        #     color,
-        #     glm.vec2(0.0, 1.0),
-        #     tex_index,
-        #     tiling_factor
-        # )
-
-        # ====================
-
-        # if isinstance(position, glm.vec2):
-        #     position = glm.vec3(position.x, position.y, 0)
-
-        # # set uniforms
-        # shader = cls.data.texture_shader
-        # shader.set_float4("u_Color", tintColor)
-        # shader.set_float("u_TilingFactor", tilingFactor)
-        # texture.bind()
-
-        # # compute transform
-        # translate = glm.translate(glm.mat4(1), position)
-        # scale = glm.scale(glm.mat4(1), glm.vec3(size.x, size.y, 1))
-        # transform = translate * scale
-        # shader.set_mat4("u_Transform", transform)
-
-        # cls.data.quad_vertex_array.bind()
-        # RenderCommand.draw_vertex_array(cls.data.quad_vertex_array)
-
-    @classmethod
-    @HZ_PROFILE_FUNCTION
-    def draw_rotated_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, texture: Texture2D, tilingFactor: float = 1, tintColor: glm.vec4 = glm.vec4(1.0)):
-        raise NotImplemented()
-        # if isinstance(position, glm.vec2):
-        #     position = glm.vec3(position.x, position.y, 0)
-
-        # # set uniforms
-        # shader = cls.data.texture_shader
-        # shader.set_float4("u_Color", tintColor)
-        # shader.set_float("u_TilingFactor", tilingFactor)
-        # texture.bind()
-
-        # # compute transform
-        # translate = glm.translate(glm.mat4(1), position)
-        # rotate = glm.rotate(glm.mat4(1), rotation_rad, glm.vec3(0, 0, 1))
-        # scale = glm.scale(glm.mat4(1), glm.vec3(size.x, size.y, 1))
-        # transform = translate * rotate * scale
-        # shader.set_mat4("u_Transform", transform)
-
-        # cls.data.quad_vertex_array.bind()
-        # RenderCommand.draw_vertex_array(cls.data.quad_vertex_array)
