@@ -147,6 +147,7 @@ class QuadVertexBuffer:
             self.data.size
         )
 
+
 @dataclass
 class Renderer2DData:  # todo: rename
     max_quads: int = 20000
@@ -308,38 +309,24 @@ class Renderer2D:
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
+        textureCoords = [
+            glm.vec2(0, 0),
+            glm.vec2(1, 0),
+            glm.vec2(1, 1),
+            glm.vec2(0, 1)
+        ]
         transform = cls.compute_transform(position, size, rotation)
         tex_index = 0  # white texture
         tiling_factor = 1
 
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[0],
-            color,
-            glm.vec2(0.0, 0.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[1],
-            color,
-            glm.vec2(1.0, 0.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[2],
-            color,
-            glm.vec2(1.0, 1.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[3],
-            color,
-            glm.vec2(0.0, 1.0),
-            tex_index,
-            tiling_factor
-        )
+        for index, textureCoord in enumerate(textureCoords):
+            cls.data.quad_vertex_buffer.add_vertex(
+                transform * cls.data.quad_vertex_positions[index],
+                color,
+                textureCoord,
+                tex_index,
+                tiling_factor
+            )
 
         cls.data.stats.quad_count += 1
 
@@ -363,36 +350,22 @@ class Renderer2D:
             cls.data.texture_slots[tex_index] = texture
             cls.data.texture_slot_index += 1
 
+        textureCoords = [
+            glm.vec2(0, 0),
+            glm.vec2(1, 0),
+            glm.vec2(1, 1),
+            glm.vec2(0, 1)
+        ]
         transform = cls.compute_transform(position, size, rotation)
 
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[0],
-            tint_color,
-            glm.vec2(0.0, 0.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[1],
-            tint_color,
-            glm.vec2(1.0, 0.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[2],
-            tint_color,
-            glm.vec2(1.0, 1.0),
-            tex_index,
-            tiling_factor
-        )
-        cls.data.quad_vertex_buffer.add_vertex(
-            transform * cls.data.quad_vertex_positions[3],
-            tint_color,
-            glm.vec2(0.0, 1.0),
-            tex_index,
-            tiling_factor
-        )
+        for index, textureCoord in enumerate(textureCoords):
+            cls.data.quad_vertex_buffer.add_vertex(
+                transform * cls.data.quad_vertex_positions[index],
+                tint_color,
+                textureCoord,
+                tex_index,
+                tiling_factor
+            )
 
         cls.data.stats.quad_count += 1
 
