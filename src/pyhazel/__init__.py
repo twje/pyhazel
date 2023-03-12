@@ -17,6 +17,7 @@ from .orthographic_camera_controller import OrthographicCameraController
 from .renderer import Renderer
 from .renderer import Renderer2D
 from .renderer import RenderCommand
+from .renderer import Statistics
 
 from .renderer import OrthographicCamera
 from .renderer import VertexArray

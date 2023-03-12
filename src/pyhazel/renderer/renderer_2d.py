@@ -21,7 +21,28 @@ import glm
 if TYPE_CHECKING:
     from .orthographic_camera import OrthographicCamera
 
-__all__ = ["Renderer2D"]
+__all__ = [
+    "Renderer2D",
+    "Statistics"
+]
+
+
+class Statistics:
+    def __init__(self) -> None:
+        self.draw_calls: int = 0
+        self.quad_count: int = 0
+
+    @property
+    def total_vertex_count(self):
+        return self.quad_count * 4
+
+    @property
+    def total_index_count(self):
+        return self.quad_count * 6
+
+    def reset(self):
+        self.draw_calls = 0
+        self.quad_count = 0
 
 
 class QuadVertexData:
@@ -102,6 +123,9 @@ class QuadVertexBuffer:
     def index_count(self) -> int:
         return self.data.index_count
 
+    def is_full(self) -> bool:
+        return self.data.is_full()
+
     def bind_to_vao(self, vao: VertexArray):
         vao.add_vertex_buffer(self.buffer)
 
@@ -123,10 +147,9 @@ class QuadVertexBuffer:
             self.data.size
         )
 
-
 @dataclass
 class Renderer2DData:  # todo: rename
-    max_quads: int = 1000
+    max_quads: int = 20000
     max_verticies: int = max_quads * 4
     max_indicies: int = max_quads * 6
     max_texture_slots: int = 32  # todo: render caps
@@ -142,6 +165,8 @@ class Renderer2DData:  # todo: rename
 
     quad_vertex_positions: list[Optional[glm.vec4]] = field(
         default_factory=lambda: [None for _ in range(4)])
+
+    stats: Statistics = field(default_factory=Statistics)
 
 
 class Renderer2D:
@@ -234,7 +259,6 @@ class Renderer2D:
 
         # Quad
         cls.data.quad_vertex_buffer.clear()
-
         cls.data.texture_slot_index = 1
 
     @classmethod
@@ -251,6 +275,13 @@ class Renderer2D:
             cls.data.quad_vertex_array,
             cls.data.quad_vertex_buffer.index_count
         )
+        cls.data.stats.draw_calls += 1
+
+    @classmethod
+    def flush_and_reset(cls):
+        cls.end_scene()
+        cls.data.quad_vertex_buffer.clear()
+        cls.data.texture_slot_index = 1
 
     @classmethod
     @HZ_PROFILE_FUNCTION
@@ -271,6 +302,9 @@ class Renderer2D:
     @classmethod
     @HZ_PROFILE_FUNCTION
     def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, color: glm.vec4 = glm.vec4(1.0)):
+        if cls.data.quad_vertex_buffer.is_full():
+            cls.flush_and_reset()
+
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
@@ -307,9 +341,14 @@ class Renderer2D:
             tiling_factor
         )
 
+        cls.data.stats.quad_count += 1
+
     @classmethod
     @HZ_PROFILE_FUNCTION
     def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
+        if cls.data.quad_vertex_buffer.is_full():
+            cls.flush_and_reset()
+
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
@@ -354,3 +393,13 @@ class Renderer2D:
             tex_index,
             tiling_factor
         )
+
+        cls.data.stats.quad_count += 1
+
+    @classmethod
+    def reset_stats(cls):
+        cls.data.stats.reset()
+
+    @classmethod
+    def get_stats(cls) -> Statistics:
+        return cls.data.stats

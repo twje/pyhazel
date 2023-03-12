@@ -9,6 +9,6 @@ class Platform(Enum):
 # =========
 # Constants
 # =========
-INSTRUMENTATION_ENABLED = True
+INSTRUMENTATION_ENABLED = False
 DEBUG = False
 PLATFORM = Platform.HZ_PLATFORM_WINDOWS
