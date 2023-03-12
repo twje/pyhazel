@@ -301,15 +301,33 @@ class Renderer2D:
         return translate * rotate * scale
 
     @classmethod
+    def get_texture_slot(cls, texture: Texture2D):
+        tex_index = 0
+
+        for index in range(1, cls.data.texture_slot_index):
+            if cls.data.texture_slots[index] == texture:
+                tex_index = index
+                break
+        else:
+            if cls.data.texture_slot_index >= cls.data.max_texture_slots:
+                cls.flush_and_reset()
+
+            tex_index = cls.data.texture_slot_index
+            cls.data.texture_slots[tex_index] = texture
+            cls.data.texture_slot_index += 1
+
+        return tex_index
+
+    @classmethod
     @HZ_PROFILE_FUNCTION
     def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, color: glm.vec4 = glm.vec4(1.0)):
-        if cls.data.quad_vertex_buffer.is_full():
-            cls.flush_and_reset()
-
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
-        textureCoords = [
+        if cls.data.quad_vertex_buffer.is_full():
+            cls.flush_and_reset()
+
+        texture_coords = [
             glm.vec2(0, 0),
             glm.vec2(1, 0),
             glm.vec2(1, 1),
@@ -319,11 +337,11 @@ class Renderer2D:
         tex_index = 0  # white texture
         tiling_factor = 1
 
-        for index, textureCoord in enumerate(textureCoords):
+        for index, texture_coord in enumerate(texture_coords):
             cls.data.quad_vertex_buffer.add_vertex(
                 transform * cls.data.quad_vertex_positions[index],
                 color,
-                textureCoord,
+                texture_coord,
                 tex_index,
                 tiling_factor
             )
@@ -333,24 +351,14 @@ class Renderer2D:
     @classmethod
     @HZ_PROFILE_FUNCTION
     def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
-        if cls.data.quad_vertex_buffer.is_full():
-            cls.flush_and_reset()
-
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
-        tex_index = 0
-        for index in range(1, cls.data.texture_slot_index):
-            if cls.data.texture_slots[index] == texture:
-                tex_index = index
-                break
+        if cls.data.quad_vertex_buffer.is_full():
+            cls.flush_and_reset()
 
-        if tex_index == 0:
-            tex_index = cls.data.texture_slot_index
-            cls.data.texture_slots[tex_index] = texture
-            cls.data.texture_slot_index += 1
-
-        textureCoords = [
+        texture_index = cls.get_texture_slot(texture)
+        texture_coords = [
             glm.vec2(0, 0),
             glm.vec2(1, 0),
             glm.vec2(1, 1),
@@ -358,12 +366,12 @@ class Renderer2D:
         ]
         transform = cls.compute_transform(position, size, rotation)
 
-        for index, textureCoord in enumerate(textureCoords):
+        for index, texture_coord in enumerate(texture_coords):
             cls.data.quad_vertex_buffer.add_vertex(
                 transform * cls.data.quad_vertex_positions[index],
                 tint_color,
-                textureCoord,
-                tex_index,
+                texture_coord,
+                texture_index,
                 tiling_factor
             )
 
