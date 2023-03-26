@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 import math
+
 from pyhazel.renderer import OrthographicCamera
 from pyhazel.input import Input
 from pyhazel.key_codes import *
@@ -19,6 +21,22 @@ if TYPE_CHECKING:
 __all__ = ["OrthographicCameraController"]
 
 
+@dataclass
+class OrthographicCameraBounds:
+    left: int = 0
+    right: int = 0
+    bottom: int = 0
+    top: int = 0
+
+    @property
+    def width(self):
+        return self.right - self.left
+
+    @property
+    def height(self):
+        return self.top - self.bottom
+
+
 class OrthographicCameraController:
     @HZ_PROFILE_FUNCTION
     def __init__(self, aspect_ratio, is_rotation_enabled=False) -> None:
@@ -32,11 +50,17 @@ class OrthographicCameraController:
         self.camera_rotation_speed = 180.0
         self.camera_translation_speed = 5
 
-        self.camera = OrthographicCamera(
+        self.bounds = OrthographicCameraBounds(
             -aspect_ratio * self.zoom_level,
             aspect_ratio * self.zoom_level,
             -self.zoom_level,
             self.zoom_level
+        )
+        self.camera = OrthographicCamera(
+            self.bounds.left,
+            self.bounds.right,
+            self.bounds.bottom,
+            self.bounds.top
         )
 
     def update(self, ts: Timestep):
@@ -86,13 +110,8 @@ class OrthographicCameraController:
     def on_mouse_scrolled(self, e: MouseScrolledEvent):
         self.zoom_level -= e.y_offset * 0.25
         self.zoom_level = max(self.zoom_level, 0.25)
-        self.camera.set_projection_matrix(
-            -self.aspect_ratio * self.zoom_level,
-            self.aspect_ratio * self.zoom_level,
-            -self.zoom_level,
-            self.zoom_level
-        )
 
+        self.set_camera_projection_matrix()
         return False
 
     @HZ_PROFILE_FUNCTION
@@ -101,11 +120,19 @@ class OrthographicCameraController:
             return False
 
         self.aspect_ratio = e.width/e.height
-        self.camera.set_projection_matrix(
-            -self.aspect_ratio * self.zoom_level,
-            self.aspect_ratio * self.zoom_level,
-            -self.zoom_level,
-            self.zoom_level
-        )
-
+        self.set_camera_projection_matrix()
         return False
+
+    @HZ_PROFILE_FUNCTION
+    def set_camera_projection_matrix(self):
+        self.bounds.left = -self.aspect_ratio * self.zoom_level
+        self.bounds.right = self.aspect_ratio * self.zoom_level
+        self.bounds.bottom = -self.zoom_level
+        self.bounds.top = self.zoom_level
+
+        self.camera.set_projection_matrix(
+            self.bounds.left,
+            self.bounds.right,
+            self.bounds.bottom,
+            self.bounds.top
+        )
