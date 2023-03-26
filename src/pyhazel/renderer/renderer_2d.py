@@ -286,14 +286,14 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def compute_transform(self, position: glm.vec3, size: glm.vec2, rotation: float):
+    def compute_transform(self, position: glm.vec3, size: glm.vec2, rotation_rad: float):
         translate = glm.translate(glm.mat4(1.0), position)
-        if rotation == 0:
+        if rotation_rad == 0:
             rotate = glm.mat4(1)
         else:
             rotate = glm.rotate(
                 glm.mat4(1.0),
-                glm.radians(rotation),
+                rotation_rad,
                 glm.vec3(0, 0, 1)
             )
         scale = glm.scale(glm.mat4(1.0), glm.vec3(size.x, size.y, 1.0))
@@ -320,7 +320,7 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, color: glm.vec4 = glm.vec4(1.0)):
+    def draw_quad(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, color: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
@@ -333,7 +333,7 @@ class Renderer2D:
             glm.vec2(1, 1),
             glm.vec2(0, 1)
         ]
-        transform = cls.compute_transform(position, size, rotation)
+        transform = cls.compute_transform(position, size, rotation_rad)
         tex_index = 0  # white texture
         tiling_factor = 1
 
@@ -350,7 +350,7 @@ class Renderer2D:
 
     @classmethod
     @HZ_PROFILE_FUNCTION
-    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation: float, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
+    def draw_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, texture: Texture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
@@ -364,7 +364,7 @@ class Renderer2D:
             glm.vec2(1, 1),
             glm.vec2(0, 1)
         ]
-        transform = cls.compute_transform(position, size, rotation)
+        transform = cls.compute_transform(position, size, rotation_rad)
 
         for index, texture_coord in enumerate(texture_coords):
             cls.data.quad_vertex_buffer.add_vertex(
