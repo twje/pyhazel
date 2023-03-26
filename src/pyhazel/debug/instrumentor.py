@@ -124,7 +124,7 @@ class NullInstrumentationTimer:
         pass
 
     def __exit__(self, type, value, traceback):
-        return True
+        return value is None
 
 
 # ==========
