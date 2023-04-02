@@ -270,6 +270,9 @@ class Renderer2D:
 
     @classmethod
     def flush(cls):
+        if cls.data.quad_vertex_buffer.index_count == 0:
+            return  # Nothing to draw
+
         cls.bind_texture_slots()
 
         RenderCommand.draw_vertex_array(
