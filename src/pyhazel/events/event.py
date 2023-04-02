@@ -53,9 +53,14 @@ class Event(ABC):
     def get_static_type() -> EventType:
         pass
 
+    @staticmethod
     @abstractmethod
     def get_category_flags() -> EventCategory:
         pass
+
+    @classmethod
+    def is_in_category(cls, category: EventCategory) -> bool:
+        return category & cls.get_category_flags()
 
 
 class EventDispatcher:

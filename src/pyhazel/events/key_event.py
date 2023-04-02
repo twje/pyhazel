@@ -15,6 +15,7 @@ class KeyEvent(Event):
         super().__init__()
         self.keycode: KeyCode = keycode
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryKeyboard | EventCategory.EventCategoryInput
 
@@ -24,6 +25,7 @@ class KeyPressedEvent(KeyEvent):
         super().__init__(keycode)
         self.repeat_count = repeat_count
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.KeyPressed
 
@@ -35,6 +37,7 @@ class KeyTypedEvent(KeyEvent):
     def __init__(self, keycode: KeyCode) -> None:
         super().__init__(keycode)
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.KeyTyped
 
@@ -46,6 +49,7 @@ class KeyReleasedEvent(KeyEvent):
     def __init__(self, keycode: KeyCode) -> None:
         super().__init__(keycode)
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.KeyReleased
 

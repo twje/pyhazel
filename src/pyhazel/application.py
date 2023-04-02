@@ -67,9 +67,9 @@ class Application:
         dispatcher.dispatch(WindowResizeEvent, self.on_window_resize)
 
         for layer in reversed(self.layer_stack):
-            layer.on_event(event)
             if event.handled:
                 break
+            layer.on_event(event)
 
     @HZ_PROFILE_FUNCTION
     def push_layer(self, layer: Layer):

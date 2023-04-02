@@ -17,9 +17,11 @@ class MouseMovedEvent(Event):
         self.mouse_x = x
         self.mouse_y = y
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.MouseMoved
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryMouse | EventCategory.EventCategoryInput
 
@@ -33,9 +35,11 @@ class MouseScrolledEvent(Event):
         self.x_offset = x_offset
         self.y_offset = y_offset
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.MouseScrolled
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryMouse | EventCategory.EventCategoryInput
 
@@ -48,6 +52,7 @@ class MouseButtonEvent(Event):
         super().__init__()
         self.button: MouseCode = button
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryMouseButton | EventCategory.EventCategoryInput
 
@@ -56,6 +61,7 @@ class MouseButtonPressedEvent(MouseButtonEvent):
     def __init__(self, button: MouseCode) -> None:
         super().__init__(button)
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.MouseButtonPressed
 
@@ -67,6 +73,7 @@ class MouseButtonReleasedEvent(MouseButtonEvent):
     def __init__(self, button: MouseCode) -> None:
         super().__init__(button)
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.MouseButtonReleased
 

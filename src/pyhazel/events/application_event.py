@@ -17,9 +17,11 @@ class WindowResizeEvent(Event):
         self.width = width
         self.height = height
 
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.WindowResize
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryApplication
 
@@ -28,9 +30,11 @@ class WindowResizeEvent(Event):
 
 
 class WindowCloseEvent(Event):
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.WindowClose
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryApplication
 
@@ -42,6 +46,7 @@ class AppTickEvent(Event):
     def get_static_type() -> EventType:
         return EventType.AppTick
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryApplication
 
@@ -50,9 +55,11 @@ class AppTickEvent(Event):
 
 
 class AppUpdateEvent(Event):
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.AppUpdate
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryApplication
 
@@ -61,9 +68,11 @@ class AppUpdateEvent(Event):
 
 
 class AppRenderEvent(Event):
+    @staticmethod
     def get_static_type() -> EventType:
         return EventType.AppRender
 
+    @staticmethod
     def get_category_flags() -> EventCategory:
         return EventCategory.EventCategoryApplication
 

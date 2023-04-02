@@ -1,5 +1,7 @@
-from .imgui_glfw_renderer import ImGuiGlfwRenderer
-from .layer import Layer
+from pyhazel.imgui_glfw_renderer import ImGuiGlfwRenderer
+from pyhazel.layer import Layer
+from pyhazel.events import Event
+from pyhazel.events import EventCategory
 from pyhazel.debug.instrumentor import *
 import imgui
 
@@ -29,6 +31,14 @@ class ImGuiLayer(Layer):
     def on_detach(self):
         self.renderer.shutdown()
         imgui.destroy_context(self.imgui_context)
+
+    @HZ_PROFILE_FUNCTION
+    def on_event(self, event: Event):
+        io = imgui.get_io()
+        event.handled = event.handled or (
+            event.is_in_category(EventCategory.EventCategoryMouse) and io.want_capture_mouse)
+        event.handled = event.handled or (
+            event.is_in_category(EventCategory.EventCategoryKeyboard) and io.want_capture_keyboard)
 
     @HZ_PROFILE_FUNCTION
     def begin(self):
