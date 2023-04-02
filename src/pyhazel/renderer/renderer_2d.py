@@ -11,6 +11,7 @@ from .buffer_element import BufferElement
 from .shader_data_type import ShaderDataType
 from .index_buffer import IndexBuffer
 from .texture import Texture2D
+from .sub_texture_2d import SubTexture2D
 from .shader import Shader
 from .render_command import RenderCommand
 from pyhazel.debug.instrumentor import *
@@ -364,6 +365,30 @@ class Renderer2D:
             glm.vec2(1, 1),
             glm.vec2(0, 1)
         ]
+        transform = cls.compute_transform(position, size, rotation_rad)
+
+        for index, texture_coord in enumerate(texture_coords):
+            cls.data.quad_vertex_buffer.add_vertex(
+                transform * cls.data.quad_vertex_positions[index],
+                tint_color,
+                texture_coord,
+                texture_index,
+                tiling_factor
+            )
+
+        cls.data.stats.quad_count += 1
+
+    @classmethod
+    @HZ_PROFILE_FUNCTION
+    def draw_sub_texture(cls, position: Union[glm.vec2, glm.vec3], size: glm.vec2, rotation_rad: float, sub_texture: SubTexture2D, tiling_factor: float = 1, tint_color: glm.vec4 = glm.vec4(1.0)):
+        if isinstance(position, glm.vec2):
+            position = glm.vec3(position.x, position.y, 0)
+
+        if cls.data.quad_vertex_buffer.is_full():
+            cls.flush_and_reset()
+
+        texture_index = cls.get_texture_slot(sub_texture.texture)
+        texture_coords = sub_texture.tex_coords
         transform = cls.compute_transform(position, size, rotation_rad)
 
         for index, texture_coord in enumerate(texture_coords):
