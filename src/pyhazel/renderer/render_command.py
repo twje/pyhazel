@@ -51,5 +51,5 @@ class RenderCommand:
         cls.renderer_api.clear()
 
     @classmethod
-    def draw_vertex_array(cls, vertex_array: VertexArray, count: int = 0):
+    def draw_vertex_array(cls, vertex_array: VertexArray, count: int = -1):
         cls.renderer_api.draw_vertex_array(vertex_array, count)
