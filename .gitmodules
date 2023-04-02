@@ -1,0 +1,3 @@
+[submodule "vendor/pyimgui"]
+	path = vendor/pyimgui
+	url = https://github.com/twje/pyimgui.git
