@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 import math
 
+
 from pyhazel.renderer import OrthographicCamera
 from pyhazel.input import Input
 from pyhazel.key_codes import *
@@ -42,7 +43,7 @@ class OrthographicCameraController:
     def __init__(self, aspect_ratio, is_rotation_enabled=False) -> None:
         self.aspect_ratio = aspect_ratio
         self.is_rotation_enabled = is_rotation_enabled
-        self.zoom_level = 1.0
+        self._zoom_level = 1.0
 
         self.camera_position = glm.vec3()
         self.camera_rotation = 0
@@ -51,10 +52,10 @@ class OrthographicCameraController:
         self.camera_translation_speed = 5
 
         self.bounds = OrthographicCameraBounds(
-            -aspect_ratio * self.zoom_level,
-            aspect_ratio * self.zoom_level,
-            -self.zoom_level,
-            self.zoom_level
+            -aspect_ratio * self._zoom_level,
+            aspect_ratio * self._zoom_level,
+            -self._zoom_level,
+            self._zoom_level
         )
         self.camera = OrthographicCamera(
             self.bounds.left,
@@ -62,6 +63,15 @@ class OrthographicCameraController:
             self.bounds.bottom,
             self.bounds.top
         )
+
+    @property
+    def zoom_level(self) -> float:
+        return self._zoom_level
+
+    @zoom_level.setter
+    def zoom_level(self, value: float) -> None:
+        self._zoom_level = value
+        self.set_camera_projection_matrix()
 
     def update(self, ts: Timestep):
         if Input.is_key_pressed(HZ_KEY_A):
