@@ -18,8 +18,9 @@ class ImGuiLayer(Layer):
     def on_attach(self):
         self.imgui_context = imgui.create_context()
         io = imgui.get_io()
+
         # io.backend_flags |= imgui.BACKEND_HAS_MOUSE_CURSORS
-        # io.backend_flags |= imgui.BACKEND_HAS_SET_MOUSE_POS
+        io.config_flags |= imgui.CONFIG_DOCKING_ENABLE
 
         imgui.style_colors_dark()
 

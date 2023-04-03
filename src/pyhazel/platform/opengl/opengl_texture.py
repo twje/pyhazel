@@ -10,7 +10,7 @@ __all__ = ["OpenGLTexture"]
 class OpenGLTexture(Texture2D):
     def __init__(self) -> None:
         super().__init__()
-        self.renderer_id = None
+        self._renderer_id = None
         self._width = None
         self._height = None
         # describes how texture is stored in the GPU
@@ -28,16 +28,17 @@ class OpenGLTexture(Texture2D):
         self.internal_format = GL_RGBA8
         self.data_format = GL_RGBA
 
-        self.renderer_id = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, self.renderer_id)
+        self._renderer_id = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, self._renderer_id)
 
         # set texture filtering parameters
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTextureParameteri(self._renderer_id,
+                            GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTextureParameteri(
-            self.renderer_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            self._renderer_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTextureParameteri(self._renderer_id, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTextureParameteri(self._renderer_id, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -58,16 +59,17 @@ class OpenGLTexture(Texture2D):
     def create_from_path(cls, path: str) -> Texture2D:
         self = cls()
 
-        self.renderer_id = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, self.renderer_id)
+        self._renderer_id = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, self._renderer_id)
 
         # set texture filtering parameters
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTextureParameteri(self._renderer_id,
+                            GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTextureParameteri(
-            self.renderer_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            self._renderer_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTextureParameteri(self.renderer_id, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTextureParameteri(self._renderer_id, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTextureParameteri(self._renderer_id, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
         # load image data
         image = Image.open(path)
@@ -106,6 +108,10 @@ class OpenGLTexture(Texture2D):
         # todo: wire up to parent class and implement
 
     @property
+    def renderer_id(self) -> int:
+        return self._renderer_id
+
+    @property
     def width(self) -> int:
         return self._width
 
@@ -117,7 +123,7 @@ class OpenGLTexture(Texture2D):
         bpp = 4 if self.data_format == GL_RGBA else 3
         assert size == bpp * self.width * self.height, "Data must be entire texture"
         glTextureSubImage2D(
-            self.renderer_id,
+            self._renderer_id,
             0,
             0,
             0,
@@ -130,11 +136,11 @@ class OpenGLTexture(Texture2D):
 
     @HZ_PROFILE_FUNCTION
     def bind(self, slot: int = 0) -> None:
-        glBindTextureUnit(slot, self.renderer_id)
+        glBindTextureUnit(slot, self._renderer_id)
 
     @HZ_PROFILE_FUNCTION
     def delete(self) -> None:
-        glDeleteTextures(1, self.renderer_id)
+        glDeleteTextures(1, self._renderer_id)
 
     def __eq__(self, __o: object) -> bool:
-        return self.renderer_id == __o.renderer_id
+        return self._renderer_id == __o._renderer_id

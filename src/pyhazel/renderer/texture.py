@@ -9,6 +9,11 @@ __all__ = ["Texture2D"]
 class Texture(ABC):
     @property
     @abstractmethod
+    def renderer_id(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
     def width(self) -> int:
         pass
 
