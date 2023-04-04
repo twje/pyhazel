@@ -29,6 +29,8 @@ from .renderer import ShaderDataType
 from .renderer import Shader
 from .renderer import ShaderLibrary
 from .renderer import Texture2D
+from .renderer import Framebuffer
+from .renderer import FramebufferSpecification
 
 # all events
 from .events import EventDispatcher

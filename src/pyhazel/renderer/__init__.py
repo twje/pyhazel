@@ -13,4 +13,5 @@ from .shader import *
 from .vertex_array import *
 from .vertex_buffer import *
 from .texture import *
+from .framebuffer import *
 from .shader_library import *
