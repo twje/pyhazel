@@ -3,6 +3,7 @@ from .events import EventDispatcher
 from .events import WindowCloseEvent
 from .events import WindowResizeEvent
 from .window import Window
+from .window import WindowProps
 from .layer_stack import LayerStack
 from .imgui_layer import ImGuiLayer
 from .layer import Layer
@@ -16,12 +17,12 @@ class Application:
     instance = None
 
     @HZ_PROFILE_FUNCTION
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
         # Singleton (explore more pythonic options)
         assert Application.instance is None
         Application.instance = self
 
-        self.window = Window.create()
+        self.window = Window.create(WindowProps(name))
         self.window.set_event_callback(self.on_event)
         self.layer_stack = LayerStack()
         self.running = True
