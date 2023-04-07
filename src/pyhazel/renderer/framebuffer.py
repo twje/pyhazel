@@ -43,3 +43,7 @@ class Framebuffer(ABC):
     @abstractmethod
     def unbind(self):
         pass
+
+    @abstractmethod
+    def resize(self, width: int, height: int):
+        pass

@@ -116,6 +116,10 @@ class OrthographicCameraController:
         dispatcher.dispatch(MouseScrolledEvent, self.on_mouse_scrolled)
         dispatcher.dispatch(WindowResizeEvent, self.on_window_resized)
 
+    def on_resize(self, width: float, height: float) -> None:
+        self.aspect_ratio = width/height
+        self.set_camera_projection_matrix()
+
     @HZ_PROFILE_FUNCTION
     def on_mouse_scrolled(self, e: MouseScrolledEvent):
         self.zoom_level -= e.y_offset * 0.25
@@ -129,8 +133,7 @@ class OrthographicCameraController:
         if e.height == 0:
             return False
 
-        self.aspect_ratio = e.width/e.height
-        self.set_camera_projection_matrix()
+        self.on_resize(float(e.width), float(e.height))
         return False
 
     @HZ_PROFILE_FUNCTION

@@ -8,11 +8,17 @@ class OpenGLFramebuffer(Framebuffer):
     def __init__(self, sepcification: FramebufferSpecification) -> None:
         super().__init__()
         self._sepcification = sepcification
-        self.renderer_id = np.empty(1, dtype=np.uint32)
-        self.color_attachement = np.empty(1, dtype=np.uint32)
-        self.depth_attachement = np.empty(1, dtype=np.uint32)
+
+        self.renderer_id = np.array([0], dtype=np.uint32)
+        self.color_attachement = np.array([0], dtype=np.uint32)
+        self.depth_attachement = np.array([0], dtype=np.uint32)
 
         self.invalidate()
+
+    def cleanup(self):
+        glDeleteFramebuffers(1, self.renderer_id[0])
+        glDeleteTextures(1, self.color_attachement[0])
+        glDeleteTextures(1, self.depth_attachement[0])
 
     @property
     def color_attachment_renderer_id(self) -> int:
@@ -22,13 +28,10 @@ class OpenGLFramebuffer(Framebuffer):
     def specification(self) -> FramebufferSpecification:
         return self._sepcification
 
-    def bind(self):
-        glBindFramebuffer(GL_FRAMEBUFFER, self.renderer_id[0])
-
-    def unbind(self):
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
-
     def invalidate(self):
+        if self.renderer_id[0] != 0:
+            self.cleanup()
+
         self.renderer_id = np.empty(1, dtype=np.uint32)
         glCreateFramebuffers(1, self.renderer_id)
         glBindFramebuffer(GL_FRAMEBUFFER, self.renderer_id[0])
@@ -78,3 +81,16 @@ class OpenGLFramebuffer(Framebuffer):
             GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    def bind(self):
+        glBindFramebuffer(GL_FRAMEBUFFER, self.renderer_id[0])
+        glViewport(0, 0, self.specification.width, self.specification.height)
+
+    def unbind(self):
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    def resize(self, width: int, height: int):
+        self.specification.width = width
+        self.specification.height = height
+
+        self.invalidate()

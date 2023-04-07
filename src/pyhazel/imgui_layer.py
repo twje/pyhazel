@@ -35,11 +35,12 @@ class ImGuiLayer(Layer):
 
     @HZ_PROFILE_FUNCTION
     def on_event(self, event: Event):
-        io = imgui.get_io()
-        event.handled = event.handled or (
-            event.is_in_category(EventCategory.EventCategoryMouse) and io.want_capture_mouse)
-        event.handled = event.handled or (
-            event.is_in_category(EventCategory.EventCategoryKeyboard) and io.want_capture_keyboard)
+        pass
+        # io = imgui.get_io()
+        # event.handled = event.handled or (
+        #     event.is_in_category(EventCategory.EventCategoryMouse) and io.want_capture_mouse)
+        # event.handled = event.handled or (
+        #     event.is_in_category(EventCategory.EventCategoryKeyboard) and io.want_capture_keyboard)
 
     @HZ_PROFILE_FUNCTION
     def begin(self):
