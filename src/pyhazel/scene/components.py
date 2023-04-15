@@ -1,6 +1,11 @@
 import glm
 
 
+class TagComponent:
+    def __init__(self, tag: str) -> None:
+        self.tag = tag
+
+
 class TransformComponent:
     def __init__(self) -> None:
         self.transform = glm.mat4(1)

@@ -21,6 +21,7 @@ from .renderer import Statistics
 
 from .scene.scene import Scene
 from .scene import components
+from .scene.entity import Entity
 
 from .renderer import OrthographicCamera
 from .renderer import VertexArray
