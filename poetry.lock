@@ -59,6 +59,18 @@ files = [
 ]
 
 [[package]]
+name = "esper"
+version = "2.4.1"
+description = "esper is a lightweight Entity System (ECS) for Python, with a focus on performance."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "esper-2.4.1-py3-none-any.whl", hash = "sha256:45794ad6cefa3c9cff78f64afd070591e562f7dc544975acd1f91a47ea9714e0"},
+    {file = "esper-2.4.1.zip", hash = "sha256:693b64d96e0bbb0e4e047f6534ca557dfe3eea57297fedf5a26e7bd8f78032d2"},
+]
+
+[[package]]
 name = "glfw"
 version = "2.5.9"
 description = "A ctypes-based wrapper for GLFW3."
@@ -82,7 +94,7 @@ preview = ["glfw-preview"]
 
 [[package]]
 name = "imgui"
-version = "1.4.1"
+version = "2.0.0"
 description = "Cython-based Python bindings for dear imgui"
 category = "main"
 optional = false
@@ -436,4 +448,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "f5f41c35f9619a18307c882257f00569b05edd35c181298099a7d3abb3f3ceb7"
+content-hash = "dc3c83b3d681c5568d6e69cdaf9976a1de2c4437b57c8d54b0e39b3bfef0f6d4"

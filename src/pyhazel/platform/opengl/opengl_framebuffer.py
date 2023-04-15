@@ -5,6 +5,8 @@ import numpy as np
 
 
 class OpenGLFramebuffer(Framebuffer):
+    MAX_FRAMEBUFFER_SIZE = 8192
+
     def __init__(self, sepcification: FramebufferSpecification) -> None:
         super().__init__()
         self._sepcification = sepcification
@@ -90,6 +92,11 @@ class OpenGLFramebuffer(Framebuffer):
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
     def resize(self, width: int, height: int):
+        if width == 0 or height == 0 or width > self.MAX_FRAMEBUFFER_SIZE or height > self.MAX_FRAMEBUFFER_SIZE:
+            # todo: convert to log statement
+            print(f"Attempted to rezize framebuffer to {width}, {height}")
+            return
+
         self.specification.width = width
         self.specification.height = height
 

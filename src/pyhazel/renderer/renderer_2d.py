@@ -327,6 +327,12 @@ class Renderer2D:
         if isinstance(position, glm.vec2):
             position = glm.vec3(position.x, position.y, 0)
 
+        transform = cls.compute_transform(position, size, rotation_rad)
+        cls.draw_quad_impl(transform, color)
+
+    @classmethod
+    @HZ_PROFILE_FUNCTION
+    def draw_quad_impl(cls, transform: glm.vec4, color: glm.vec4 = glm.vec4(1.0)):
         if cls.data.quad_vertex_buffer.is_full():
             cls.flush_and_reset()
 
@@ -336,7 +342,6 @@ class Renderer2D:
             glm.vec2(1, 1),
             glm.vec2(0, 1)
         ]
-        transform = cls.compute_transform(position, size, rotation_rad)
         tex_index = 0  # white texture
         tiling_factor = 1
 

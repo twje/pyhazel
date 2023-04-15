@@ -19,6 +19,9 @@ from .renderer import Renderer2D
 from .renderer import RenderCommand
 from .renderer import Statistics
 
+from .scene.scene import Scene
+from .scene import components
+
 from .renderer import OrthographicCamera
 from .renderer import VertexArray
 from .renderer import VertexBuffer
