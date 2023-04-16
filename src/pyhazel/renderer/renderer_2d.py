@@ -20,6 +20,7 @@ import glm
 
 if TYPE_CHECKING:
     from .orthographic_camera import OrthographicCamera
+    from .camera import Camera
 
 __all__ = [
     "Renderer2D",
@@ -246,6 +247,23 @@ class Renderer2D:
     @HZ_PROFILE_FUNCTION
     def shutdown(cls):
         pass
+
+    @classmethod
+    @HZ_PROFILE_FUNCTION
+    def begin_scene_from_camera(cls, camera: Camera, transform: glm.mat4):
+        view_proj = camera.projection * glm.inverse(transform)
+
+        # Shader
+        shader = cls.data.texture_shader
+        shader.bind()
+        shader.set_mat4(
+            "u_ViewProjection",
+            view_proj
+        )
+
+        # Quad
+        cls.data.quad_vertex_buffer.clear()
+        cls.data.texture_slot_index = 1
 
     @classmethod
     @HZ_PROFILE_FUNCTION

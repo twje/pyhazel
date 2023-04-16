@@ -1,4 +1,5 @@
 import glm
+from pyhazel.renderer.camera import Camera
 
 
 class TagComponent:
@@ -14,3 +15,9 @@ class TransformComponent:
 class SpriteRendererComponent:
     def __init__(self, color=glm.vec4(1)) -> None:
         self.color = glm.vec4(color)
+
+
+class CameraComponent:
+    def __init__(self, projection: glm.mat4) -> None:
+        self.primary = True
+        self.camera = Camera(projection)
