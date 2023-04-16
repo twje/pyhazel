@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 class Scene:
     def __init__(self) -> None:
         self.registry = esper.World()
+        self.viewport_width: int = 0
+        self.viewport_height: int = 0
 
     def create_entity(self, name: str = "") -> Entity:
         entity = Entity(self.registry.create_entity(), self)
@@ -51,3 +53,14 @@ class Scene:
                 Renderer2D.draw_quad_impl(transform.transform, sprite.color)
 
             Renderer2D.end_scene()
+
+    def on_viewport_resize(self, width: int, height: int) -> None:
+        self.viewport_width = width
+        self.viewport_height = height
+
+        # Resize our non-FixedAspectRatio cameras
+        for _, camera_comp in self.registry.get_component(
+            components.CameraComponent
+        ):
+            if not camera_comp.fixed_aspect_ratio:
+                camera_comp.camera.set_viewport_size(width, height)

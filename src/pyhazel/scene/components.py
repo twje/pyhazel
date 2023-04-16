@@ -1,5 +1,5 @@
 import glm
-from pyhazel.renderer.camera import Camera
+from pyhazel.scene.scene_camera import SceneCamera
 
 
 class TagComponent:
@@ -18,6 +18,7 @@ class SpriteRendererComponent:
 
 
 class CameraComponent:
-    def __init__(self, projection: glm.mat4) -> None:
+    def __init__(self) -> None:
         self.primary = True
-        self.camera = Camera(projection)
+        self.fixed_aspect_ratio = False
+        self.camera = SceneCamera()
