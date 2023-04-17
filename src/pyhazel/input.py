@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from typing import Optional
 from abc import ABC
 from abc import abstractmethod
 from .key_codes import KeyCode
@@ -9,10 +9,7 @@ from .config import *
 __all__ = ["Input"]
 
 
-class Input(ABC):
-    # ----------
-    # Client API
-    # ----------
+class BaseInput(ABC):
     @staticmethod
     @abstractmethod
     def is_key_pressed(keycode: KeyCode) -> bool:
@@ -37,3 +34,35 @@ class Input(ABC):
     @abstractmethod
     def get_mouse_y() -> int:
         pass
+
+
+class Input(ABC):
+    instance: Optional[BaseInput] = None
+
+    @staticmethod
+    def create():
+        from pyhazel.windows_input import WindowsInput
+        Input.instance = WindowsInput
+
+    @staticmethod
+    def is_key_pressed(keycode: KeyCode) -> bool:
+        return Input.instance.is_key_pressed(keycode)
+
+    @staticmethod
+    def is_mouse_button_pressed(button: MouseCode) -> bool:
+        return Input.instance.is_mouse_button_pressed(button)
+
+    @staticmethod
+    def get_mouse_position() -> tuple[int, int]:
+        return Input.instance.get_mouse_position()
+
+    @staticmethod
+    def get_mouse_x() -> int:
+        return Input.instance.get_mouse_x()
+
+    @staticmethod
+    def get_mouse_y() -> int:
+        return Input.instance.get_mouse_y()
+
+
+Input.create()

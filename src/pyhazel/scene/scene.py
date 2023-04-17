@@ -27,6 +27,17 @@ class Scene:
         return entity
 
     def update(self, ts: Timestep) -> None:
+        # Update Scripts
+        for handle, nsc in self.registry.get_component(
+            components.NativeScriptComponent,
+        ):
+            if nsc.instance is None:
+                nsc.instance = nsc.instantiate_script()
+                nsc.instance.entity = Entity(handle, self)
+                nsc.instance.on_create()
+            
+            nsc.instance.on_update(ts)
+
         # Render 2D
         main_camera: Optional[Camera] = None
         camera_transform = None

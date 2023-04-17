@@ -188,6 +188,9 @@ class WindowsWindow(Window):
         data.event_callback(event)
 
     def char_callback(self,  window: glfw._GLFWwindow, key: int):
-        data = glfw.get_window_user_pointer(window)
-        event = KeyTypedEvent(KeyCode(key))
-        data.event_callback(event)
+        try:
+            event = KeyTypedEvent(KeyCode(key))
+            data = glfw.get_window_user_pointer(window)
+            data.event_callback(event)
+        except ValueError:
+            print(f"ValueError: {key} is not a valid KeyCode")

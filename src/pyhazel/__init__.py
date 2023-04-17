@@ -22,6 +22,7 @@ from .renderer import Statistics
 from .scene.scene import Scene
 from .scene import components
 from .scene.entity import Entity
+from .scene.scriptable_entity import ScriptableEntity
 
 from .renderer import OrthographicCamera
 from .renderer import VertexArray
@@ -35,6 +36,7 @@ from .renderer import ShaderLibrary
 from .renderer import Texture2D
 from .renderer import Framebuffer
 from .renderer import FramebufferSpecification
+
 
 # all events
 from .events import EventDispatcher

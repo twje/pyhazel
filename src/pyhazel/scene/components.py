@@ -1,5 +1,12 @@
+from typing import TypeVar
+from typing import Optional
+from typing import Callable
 import glm
 from pyhazel.scene.scene_camera import SceneCamera
+from pyhazel.scene.scriptable_entity import ScriptableEntity
+
+
+T = TypeVar("T")
 
 
 class TagComponent:
@@ -22,3 +29,15 @@ class CameraComponent:
         self.primary = True
         self.fixed_aspect_ratio = False
         self.camera = SceneCamera()
+
+
+ScriptableEntityFactoryType = Optional[Callable[[], ScriptableEntity]]
+
+
+class NativeScriptComponent:
+    def __init__(self) -> None:
+        self.instance: Optional[ScriptableEntity] = None
+        self.instantiate_script: ScriptableEntityFactoryType = None
+
+    def bind(self, scriptable_entity_type: type[ScriptableEntity]) -> None:
+        self.instantiate_script = lambda: scriptable_entity_type()
