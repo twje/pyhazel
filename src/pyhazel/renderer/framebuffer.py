@@ -8,8 +8,8 @@ from pyhazel.renderer import RendererAPI
 
 @dataclass
 class FramebufferSpecification:
-    width: int
-    height: int
+    width: int = 0
+    height: int = 0
     samples: int = 1
     swap_chain_target: bool = False
 

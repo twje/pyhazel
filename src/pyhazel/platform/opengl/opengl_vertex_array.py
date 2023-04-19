@@ -43,28 +43,28 @@ def shader_data_type_to_opengl_base_type(value: ShaderDataType):
     assert False, "Unknown ShaderDataType"
 
 
-def set_vector_vertex_attrib_callback(vertex_attrib_index: int, layout: BufferLayout, element: BufferElement):
-    glEnableVertexAttribArray(vertex_attrib_index)
-    glVertexAttribPointer(
-        vertex_attrib_index,
-        element.s_type.count,
-        shader_data_type_to_opengl_base_type(element.s_type),
-        GL_TRUE if element.normalized else GL_FALSE,
-        layout.stride,
-        ctypes.c_void_p(element.offset)
-    )
+# def set_vector_vertex_attrib_callback(vertex_attrib_index: int, layout: BufferLayout, element: BufferElement):
+#     glEnableVertexAttribArray(vertex_attrib_index)
+#     glVertexAttribPointer(
+#         vertex_attrib_index,
+#         element.s_type.count,
+#         shader_data_type_to_opengl_base_type(element.s_type),
+#         GL_TRUE if element.normalized else GL_FALSE,
+#         layout.stride,
+#         ctypes.c_void_p(element.offset)
+#     )
 
 
-def set_matrix_vertex_attrib_callback(vertex_attrib_index: int, layout: BufferLayout, element: BufferElement):
-    glEnableVertexAttribArray(vertex_attrib_index)
-    glVertexAttribPointer(
-        vertex_attrib_index,
-        element.s_type.count,
-        shader_data_type_to_opengl_base_type(element.s_type),
-        GL_TRUE if element.normalized else GL_FALSE,
-        layout.stride,
-        ctypes.c_void_p(element.offset)
-    )
+# def set_matrix_vertex_attrib_callback(vertex_attrib_index: int, layout: BufferLayout, element: BufferElement):
+#     glEnableVertexAttribArray(vertex_attrib_index)
+#     glVertexAttribPointer(
+#         vertex_attrib_index,
+#         element.s_type.count,
+#         shader_data_type_to_opengl_base_type(element.s_type),
+#         GL_TRUE if element.normalized else GL_FALSE,
+#         layout.stride,
+#         ctypes.c_void_p(element.offset)
+#     )
 
 
 class OpenGLVertexArray(VertexArray):
@@ -159,7 +159,7 @@ class OpenGLVertexArray(VertexArray):
                 shader_data_type_to_opengl_base_type(element.s_type),
                 GL_TRUE if element.normalized else GL_FALSE,
                 layout.stride,
-                ctypes.c_void_p(count * index)
+                ctypes.c_void_p(element.offset + 4 * count * index)
             )
             glVertexArrayBindingDivisor(self._vertex_buffer_offset, 1)
             self._vertex_buffer_offset += 1

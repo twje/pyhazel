@@ -5,6 +5,7 @@ from abc import abstractmethod
 from .key_codes import KeyCode
 from .mouse_codes import MouseCode
 from .config import *
+import glm
 
 __all__ = ["Input"]
 
@@ -22,7 +23,7 @@ class BaseInput(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_mouse_position() -> tuple[int, int]:
+    def get_mouse_position() -> glm.vec2:
         pass
 
     @staticmethod
@@ -53,7 +54,7 @@ class Input(ABC):
         return Input.instance.is_mouse_button_pressed(button)
 
     @staticmethod
-    def get_mouse_position() -> tuple[int, int]:
+    def get_mouse_position() -> glm.vec2:
         return Input.instance.get_mouse_position()
 
     @staticmethod

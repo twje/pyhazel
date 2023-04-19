@@ -3,6 +3,7 @@ from .input import Input
 from pyhazel.key_codes import KeyCode
 from pyhazel.mouse_codes import MouseCode
 import glfw
+import glm
 
 __all__ = ["WindowsInput"]
 
@@ -18,14 +19,12 @@ class WindowsInput(Input):
         state = glfw.get_mouse_button(window, int(button))
         return state == glfw.PRESS
 
-    def get_mouse_position() -> tuple[int, int]:
+    def get_mouse_position() -> glm.vec2:
         window = Application.instance.window.native_window
-        return glfw.get_cursor_pos(window)
+        return glm.vec2(glfw.get_cursor_pos(window))
 
     def get_mouse_x() -> int:
-        x, _ = WindowsInput.get_mouse_position()
-        return x
+        return WindowsInput.get_mouse_position().x
 
     def get_mouse_y() -> int:
-        _, y = WindowsInput.get_mouse_position()
-        return y
+        return WindowsInput.get_mouse_position().y

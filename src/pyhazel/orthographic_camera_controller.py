@@ -7,7 +7,7 @@ import math
 
 from pyhazel.renderer import OrthographicCamera
 from pyhazel.input import Input
-from pyhazel.key_codes import *
+from pyhazel.key_codes import KeyCode
 from pyhazel.events import EventDispatcher
 from pyhazel.events.mouse_events import MouseScrolledEvent
 from pyhazel.events.application_event import WindowResizeEvent
@@ -74,23 +74,23 @@ class OrthographicCameraController:
         self.set_camera_projection_matrix()
 
     def update(self, ts: Timestep):
-        if Input.is_key_pressed(HZ_KEY_A):
+        if Input.is_key_pressed(KeyCode.KEY_A):
             self.camera_position.x -= self.calc_anti_cos_rotate(ts)
             self.camera_position.y -= self.calc_anti_sin_rotate(ts)
-        elif Input.is_key_pressed(HZ_KEY_D):
+        elif Input.is_key_pressed(KeyCode.KEY_D):
             self.camera_position.x += self.calc_anti_cos_rotate(ts)
             self.camera_position.y += self.calc_anti_sin_rotate(ts)
-        if Input.is_key_pressed(HZ_KEY_W):
+        if Input.is_key_pressed(KeyCode.KEY_W):
             self.camera_position.x += -self.calc_anti_sin_rotate(ts)
             self.camera_position.y += self.calc_anti_cos_rotate(ts)
-        elif Input.is_key_pressed(HZ_KEY_S):
+        elif Input.is_key_pressed(KeyCode.KEY_S):
             self.camera_position.x -= -self.calc_anti_sin_rotate(ts)
             self.camera_position.y -= self.calc_anti_cos_rotate(ts)
 
         if self.is_rotation_enabled:
-            if Input.is_key_pressed(HZ_KEY_Q):
+            if Input.is_key_pressed(KeyCode.KEY_Q):
                 self.camera_rotation += self.camera_rotation_speed * ts.seconds
-            elif Input.is_key_pressed(HZ_KEY_E):
+            elif Input.is_key_pressed(KeyCode.KEY_E):
                 self.camera_rotation -= self.camera_rotation_speed * ts.seconds
 
             if self.camera_position > 180:
