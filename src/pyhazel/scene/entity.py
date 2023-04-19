@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from typing import Optional
 from typing import TypeVar
 
 if TYPE_CHECKING:
@@ -33,3 +34,8 @@ class Entity:
 
     def __bool__(self) -> bool:
         return self.handle != 0
+
+    def __eq__(self, other: Optional[Entity]) -> bool:
+        if other is None:
+            return False
+        return self.handle == other.handle and self.scene is other.scene

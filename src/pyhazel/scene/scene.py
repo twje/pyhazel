@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Optional
+from typing import Generator
 from pyhazel.scene import components
 from pyhazel.scene.entity import Entity
 from pyhazel.renderer.camera import Camera
@@ -17,6 +18,11 @@ class Scene:
         self.registry = esper.World()
         self.viewport_width: int = 0
         self.viewport_height: int = 0
+
+    def all_entities(self) -> Generator[Entity, None, None]:
+        # hack - esper doesn't quering all entities without a component
+        for handle, _ in self.registry.get_component(components.TagComponent):
+            yield Entity(handle, self)
 
     def create_entity(self, name: str = "") -> Entity:
         entity = Entity(self.registry.create_entity(), self)
@@ -35,7 +41,7 @@ class Scene:
                 nsc.instance = nsc.instantiate_script()
                 nsc.instance.entity = Entity(handle, self)
                 nsc.instance.on_create()
-            
+
             nsc.instance.on_update(ts)
 
         # Render 2D
