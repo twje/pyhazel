@@ -54,7 +54,7 @@ class MouseButtonEvent(Event):
 
     @staticmethod
     def get_category_flags() -> EventCategory:
-        return EventCategory.EventCategoryMouseButton | EventCategory.EventCategoryInput
+        return EventCategory.EventCategoryMouseButton | EventCategory.EventCategoryInput | EventCategory.EventCategoryMouseButton
 
 
 class MouseButtonPressedEvent(MouseButtonEvent):
