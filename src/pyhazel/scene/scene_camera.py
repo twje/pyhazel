@@ -70,18 +70,18 @@ class SceneCamera(Camera):
     # -------
     # Methods
     # -------
-    def set_orthographic(self, size: float, near_clip: float, far_clap: float):
-        self._projection_type = ProjectionType.ORTHOGRAPHIC
-        self.orthographic_size = size
-        self.orthographic_near = near_clip
-        self.orthographic_far = far_clap
-        self.recalculate_projection()
-
     def set_perspective(self, vertical_fov: float, near_clip: float, far_clip: float):
         self._projection_type = ProjectionType.ORTHOGRAPHIC
         self._perspective_fov = vertical_fov
         self._perspective_near = near_clip
         self._perspective_far = far_clip
+        self.recalculate_projection()
+
+    def set_orthographic(self, size: float, near_clip: float, far_clap: float):
+        self._projection_type = ProjectionType.ORTHOGRAPHIC
+        self.orthographic_size = size
+        self.orthographic_near = near_clip
+        self.orthographic_far = far_clap
         self.recalculate_projection()
 
     def set_orthographic_size(self, size: float):
