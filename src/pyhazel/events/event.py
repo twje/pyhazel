@@ -69,6 +69,6 @@ class EventDispatcher:
 
     def dispatch(self, event_type: Event, callback) -> bool:
         if self.event.get_event_type() == event_type.get_static_type():
-            self.event.handled = callback(self.event)
+            self.event.handled |= callback(self.event)
             return True
         return False
