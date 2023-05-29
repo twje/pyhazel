@@ -6,7 +6,7 @@ from pyhazel.scene.scene_camera import SceneCamera
 from pyhazel.scene.scriptable_entity import ScriptableEntity
 
 
-T = TypeVar("T")
+T = TypeVar("T")  # remove
 
 
 class TagComponent:
@@ -16,7 +16,17 @@ class TagComponent:
 
 class TransformComponent:
     def __init__(self) -> None:
-        self.transform = glm.mat4(1)
+        self.translate = glm.vec3(0)
+        self.rotation = glm.vec3(0)
+        self.scale = glm.vec3(1)
+
+    def get_transform(self):
+        rotation = (
+            glm.rotate(glm.mat4(1.0), self.rotation.x, glm.vec3(1, 0, 0)) *
+            glm.rotate(glm.mat4(1.0), self.rotation.y, glm.vec3(0, 1, 0)) *
+            glm.rotate(glm.mat4(1.0), self.rotation.z, glm.vec3(0, 0, 1))
+        )
+        return glm.translate(glm.mat4(1.0), self.translate) * rotation * glm.scale(glm.mat4(1.0), self.scale)
 
 
 class SpriteRendererComponent:

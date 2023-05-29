@@ -54,7 +54,7 @@ class Scene:
         ):
             if camera.primary:
                 main_camera = camera.camera
-                camera_transform = transform.transform
+                camera_transform = transform.get_transform()
                 break
 
         if main_camera is not None:
@@ -67,7 +67,10 @@ class Scene:
                 components.TransformComponent,
                 components.SpriteRendererComponent
             ):
-                Renderer2D.draw_quad_impl(transform.transform, sprite.color)
+                Renderer2D.draw_quad_impl(
+                    transform.get_transform(),
+                    sprite.color
+                )
 
             Renderer2D.end_scene()
 
