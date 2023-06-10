@@ -89,6 +89,9 @@ class SceneCamera(Camera):
         self.recalculate_projection()
 
     def set_viewport_size(self, width: int, height: int) -> None:
+        if (width == 0 or height == 0):
+            return
+
         self.aspect_ratio = float(width)/float(height)
         self.recalculate_projection()
 

@@ -32,6 +32,17 @@ class Scene:
         )
         return entity
 
+    def on_component_added(self, entity: Entity, component) -> None:
+        if type(component) == components.CameraComponent:
+            component: components.CameraComponent = component
+            component.camera.set_viewport_size(
+                self.viewport_width,
+                self.viewport_height
+            )
+
+    def destroy_entity(self, entity: Entity) -> None:
+        self.registry.delete_entity(entity.handle, True)
+
     def update(self, ts: Timestep) -> None:
         # Update Scripts
         for handle, nsc in self.registry.get_component(

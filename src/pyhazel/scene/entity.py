@@ -21,6 +21,7 @@ class Entity:
 
     def add_component(self, component_instance: T) -> T:
         self.scene.registry.add_component(self.handle, component_instance)
+        self.scene.on_component_added(self, component_instance)
         return component_instance
 
     def get_component(self, component_type: type[T]) -> T:
